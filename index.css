@@ -4,10 +4,25 @@
 
 html, body {
     margin: 0 auto;
+    height: 100%;
+}
+
+img {
+    width: 100%;
+    height: auto;
 }
 
 ul {
     padding-left: 0;
+}
+
+nav {
+    height: 60px;
+    background-color: white;
+    max-width: 720px;
+    margin: 0 auto;
+    border-bottom: 1px black solid;
+    color: black;
 }
 
 ul, li {
@@ -23,11 +38,25 @@ body {
 
 main {
     margin: 0 auto;
-    padding: 10px;
+    /* padding: 10px; */
+    height: 100%;
     max-width: 720px;
+    /* border-left: 1px solid white;
+    border-right: 1px solid white; */
 }
 
 /* IDS */
+#overlay {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: #00000066;
+}
+
+#results li {
+
+}
+
 #favorites {
     
 
@@ -57,7 +86,7 @@ main {
     display: flex;
 }
 
-#recent_watched li{
+#recent_watched li {
     margin: 0;
     display: flex;
     height: 250px;
@@ -71,7 +100,40 @@ main {
     background-image: url("https://a.ltrbxd.com/resized/film-poster/5/2/4/6/6/3/524663-the-half-of-it-0-150-0-225-crop.jpg?k=4023f45970");
 }
 
-/*  CLASSES */
-.movie_info {
+#movie-backdrop-container {
+    position: relative;
+    padding-top: 56.25%;
+    width: 100%;
+    background-size: cover;
+}
 
+#movie-backdrop-container::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 0;
+    background: linear-gradient(180deg,rgba(20,24,28,0) 0,rgba(20,24,28,0) 50%,rgba(20,24,28,.75) 75%,#202020);
+}
+
+/*  CLASSES */
+.movie_poster {
+    width: 86px;
+
+}
+.hidden {
+    display: none;
+}
+.results_list {
+    background: white;
+    color: black;
+    width:329px;
+    height: 70px;
+    border-bottom: 1px solid black;
+}
+
+.results_list  img {
+    width: 34px;
 }
