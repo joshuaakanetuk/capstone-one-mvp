@@ -137,9 +137,9 @@ function renderFavorites() {
     let lis = ``;
     for (let i = 0; i < 5; i++) {
         if (!FAVORITES[i])
-            lis += `<li>Placeholder</li>`
+            lis += `<li>+</li>`
         else
-            lis += `<li data-movie-id=${FAVORITES[i].movie_id} style="background-image: url('${FAVORITES[i].movie_poster}')"></li>`
+            lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/></li>`
     }
     let favorites = `<section id="favorites"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);

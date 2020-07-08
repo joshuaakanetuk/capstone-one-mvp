@@ -3,8 +3,8 @@
 }
 
 html, body {
-    margin: 0 auto;
-    height: 100%;
+    /* margin: 0 auto; */
+    /* height: 100%; */
 }
 
 img {
@@ -74,10 +74,10 @@ main {
 }
 
 #favorite__drawer li {
-    flex: 0 1 17%;
+    flex: 0 1 15%;
     display: block;
     border: 1px solid #FFFFFF;
-    height: 178px;
+    /* height: 178px; */
     background-size: cover;
     
 }
