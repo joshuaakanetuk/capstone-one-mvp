@@ -51,6 +51,11 @@ main {
     height: 100%;
     width: 100%;
     background-color: #00000066;
+    display: flex;
+}
+
+#ui {
+    margin: 0 auto;
 }
 
 #results li {
@@ -86,6 +91,11 @@ main {
     display: flex;
 }
 
+
+#recent_watched h1 {
+    margin-top: 0;
+    font-size: 2em;
+}
 #recent_watched li {
     margin: 0;
     display: flex;
@@ -98,6 +108,10 @@ main {
     height: 100%;
     width: 169px;
     background-image: url("https://a.ltrbxd.com/resized/film-poster/5/2/4/6/6/3/524663-the-half-of-it-0-150-0-225-crop.jpg?k=4023f45970");
+}
+
+#recent_watched .movie_info {
+    margin-left: 20px;
 }
 
 #movie-backdrop-container {
@@ -124,7 +138,7 @@ main {
 
 }
 .hidden {
-    display: none;
+    display: none !important;
 }
 .results_list {
     background: white;

@@ -82,7 +82,7 @@ function watchedList() {
 }
 
 function watchToString(obj) {
-    return `<li><div class="movie_poster"></div> <div class="movie_info"> <h2>${obj.movie.movie_title}</h2> <small>dir. Oliva Wilde</small> <div>Watched on ${obj.date_watched}</div> <div class="movie_stars"> ${obj.star_count}<i class="fa fa-star" aria-hidden="true"></i> </div> <div class="movie_watched_edit">Edit</div> </div> </li>`;
+    return `<li><div class="movie_poster" style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. Oliva Wilde</small> <div>Watched on ${obj.date_watched}</div> <div>${obj.review_content}</div><div class="movie_stars"> ${obj.star_count}<i class="fa fa-star" aria-hidden="true"></i> </div> <div class="movie_watched_edit">Edit</div> </div> </li>`;
 }
 
 
@@ -101,11 +101,18 @@ function checkLocalStorage() {
 
 function onClickHandler() {
     $('#favorite__drawer').on('click', 'li', function (e) {
-        // renderMovieDetail(e.currentTarget.dataset.movieId);
+        renderMovieDetail(e.currentTarget.dataset.movieId);
+        // renderSearchOverlay();
 
+    });
+
+    $('#addbutton').on('click', function (e) {
         renderSearchOverlay();
 
     });
+
+
+
 }
 
 function goHome() {
@@ -120,7 +127,7 @@ function onClickSearchOverlay() {
         renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src);
     });
 
-    
+
 }
 
 /* COMPONENT RENDER FUNCTIONS */
@@ -153,7 +160,7 @@ function renderMovieDetail(id) {
         .then(data => convertMovieOBJ(data))
         .then(str => {
             $('main').html(str)
-            
+
         })
         .catch(err => console.log(err));
     goHome();
@@ -165,11 +172,12 @@ function renderAllWatchedScreen() {
 
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
-    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}"><div class="results_list"><div><img src="${imagebase+watch.poster_path}" /></div><span>${watch.title}</span></div></li>`);
+    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}"><div class="results_list"><div><img src="${imagebase + watch.poster_path}" /></div><span>${watch.title}</span></div></li>`);
 }
 
 function renderSearchOverlay() {
     $('#overlay').toggleClass('hidden');
+    $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
 
     // $('#overlay').on('click', 'li', function (e) {
     //     // e.stopPropagation();
@@ -182,9 +190,9 @@ function renderSearchOverlay() {
         fetchHelp(searchEndpoint, '', $('#name').val())
             .then(d => mapSearchList(d.results))
             .then(data => {
-                $('#results').html(data) 
-            
-        })
+                $('#results').html(data)
+
+            })
             .catch(err => console.log(err))
     });
 
@@ -192,19 +200,31 @@ function renderSearchOverlay() {
 
 };
 
-
-
 function renderWatchDetail(obj, img) {
+    const currentTime = new Date();
     console.log(obj, img)
     //if existing watch
-    if(date_watched)
-    {
-        
-    }
-    else {
+    $('#ui').html(`<div style="background-color: white; padding: 20px; color: black;" ><div>${obj.movieTitle}</div><br><img style="width: 32px;" src="${img}"/><br><div>Date Watched: ${currentTime}</div><textarea id="reviewContent"></textarea><input type="button" value="Add" /></div>`)
 
-    }
-    $('ul').html(``)
+    $('#ui').on('click', 'input[type=button]', function (e) {
+        WATCHED.push({
+            date_watched: currentTime,
+            favorite: false,
+            star_count: 3,
+            review_content: $('#reviewContent').val(),
+            movie: {
+                movie_id: obj.movieId,
+                movie_title: obj.movieTitle,
+                movie_poster: img
+            }
+
+        });
+
+        $('#ui').off();
+        $('#overlay').toggleClass('hidden');
+        renderHomeScreen();
+
+    });
 
 }
 
