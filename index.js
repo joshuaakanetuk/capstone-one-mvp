@@ -118,6 +118,7 @@ function onClickHandler() {
 
 function goHome() {
     $('nav').on('click', function (e) {
+        e.stopPropagation();
         renderHomeScreen();
     });
 }
