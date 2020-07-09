@@ -65,7 +65,7 @@ let favorite = {
 
 /* HELPER FUNCTIONS */
 function fetchHelp(endpoint, path, q) {
-    return fetch(`https://api.themoviedb.org/3/${endpoint}/${path}?api_key=${api}&query=${q}`)
+    return fetch(`https://api.themoviedb.org/3/${endpoint}/${path}?api_key=${api}&query=${q}`, {mode: 'cors'})
         .then(response => response.json())
         .catch(err => console.log(err))
 }
