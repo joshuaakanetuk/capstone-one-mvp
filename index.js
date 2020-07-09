@@ -65,7 +65,7 @@ let favorite = {
 
 /* HELPER FUNCTIONS */
 function fetchHelp(endpoint, path, q) {
-    return fetch(`https://api.themoviedb.org/3/${endpoint}${(path) ? '/' + path : ''}?api_key=${api}&query=${q}`, {mode: 'cors'})
+    return fetch(`https://api.themoviedb.org/3/${endpoint}${(path) ? '/' + path : ''}?api_key=${api}&query=${q}`, { mode: 'cors' })
         .then(response => response.json())
         .catch(err => console.log(err))
 }
@@ -75,7 +75,7 @@ function convertMovieOBJ(obj) {
 }
 
 function watchedList() {
-    
+
     const renderWatchList = WATCHED.map(watch => watchToString(watch)).join('');
     let watchedContain = `<section id="recent"> <span id="recent_header"> <h2>RECENTLY WATCHED:</h2> <small>MORE</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
     $('main').append(watchedContain);
@@ -106,14 +106,14 @@ function onClickHandler() {
         // renderSearchOverlay();
 
     });
+}
 
+function onNavClick() {
     $('#addbutton').on('click', function (e) {
+        e.stopPropagation();
         renderSearchOverlay();
-
+        overlayListener();
     });
-
-
-
 }
 
 function goHome() {
@@ -127,6 +127,7 @@ function onClickSearchOverlay() {
     $('#results').on('click', 'li', function (e) {
         // e.stopPropagation();
         renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src);
+
     });
 
 
@@ -155,6 +156,7 @@ function renderRecent(num) {
 function renderHomeScreen() {
     renderFavorites();
     renderRecent(1);
+    onNavClick();
 }
 
 function renderMovieDetail(id) {
@@ -172,6 +174,19 @@ function renderAllWatchedScreen() {
 
 }
 
+function overlayListener() {
+    $('#overlay').on('click', function (e) {
+        e.stopPropagation();
+        console.log(e);
+        if ((e.target.id) == 'overlay' ) {
+            $('#overlay').toggleClass('hidden');
+            $("#overlay").off()
+        }
+        else {
+        }
+    });
+}
+
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
     return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}"><div class="results_list"><div><img src="${imagebase + watch.poster_path}" /></div><span>${watch.title}</span></div></li>`);
@@ -180,13 +195,6 @@ function mapSearchList(arr) {
 function renderSearchOverlay() {
     $('#overlay').toggleClass('hidden');
     $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
-
-    // $('#overlay').on('click', 'li', function (e) {
-    //     // e.stopPropagation();
-    //     console.log(e);
-    //     $('#overlay').toggleClass('hidden');
-    //     $("#overlay").off()
-    // });
 
     $('#name').on('input', function () {
         fetchHelp(searchEndpoint, '', $('#name').val())
@@ -225,6 +233,9 @@ function renderWatchDetail(obj, img) {
         $('#ui').off();
         $('#overlay').toggleClass('hidden');
         renderHomeScreen();
+        $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
+        overlayListener();
+        onNavClick();
 
     });
 
