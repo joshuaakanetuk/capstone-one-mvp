@@ -75,8 +75,8 @@ function convertMovieOBJ(obj) {
 }
 
 function watchedList() {
-
-    const renderWatchList = WATCHED.map(watch => watchToString(watch)).join('');
+    const reverse = WATCHED.reverse();
+    const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
     let watchedContain = `<section id="recent"> <span id="recent_header"> <h2>RECENTLY WATCHED:</h2> <small>MORE</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
     $('main').append(watchedContain);
 
