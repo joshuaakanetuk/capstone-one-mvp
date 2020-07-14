@@ -246,15 +246,17 @@ function save() {
 }
 
 function read() {
-    alert(localStorage)
-    console.log(localStorage)
-    try {
-        FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
-        WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
+    let loadedFav, loadedWatch;
+    console.log(localStorage, FAVORITES)
+    if(localStorage.getItem("FAVORITES")) {
+        FAVORITES =  JSON.parse(localStorage.getItem("FAVORITES")) ;
+        
     }
-    catch {
-        console.log("Error loading watched.")
+
+    if(localStorage.getItem(("WATCHED"))) {
+        WATCHED = JSON.parse(localStorage.getItem(("WATCHED")))
     }
+
 }
 
 
@@ -265,15 +267,14 @@ function removeWatched(id) {
 
 /* COMPONENT RENDER FUNCTIONS */
 function renderFavorites() {
-
-
-
     let lis = ``;
     for (let i = 0; i < 5; i++) {
-        if (FAVORITES[i].length = 0)
-            lis += `<li class="placeholder"></li>`
-        else
-            lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite">X</span></li>`
+        if(FAVORITES) {
+            if (!(FAVORITES[i]))
+                lis += `<li class="placeholder"></li>`
+            else
+                lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite">X</span></li>`
+            }
     }
     let favorites = `<section id="favorites" class="dropzone"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);
@@ -291,7 +292,6 @@ function renderHomeScreen() {
     renderFavorites();
     renderRecent(1);
     onNavClick();
-
     $('#recent_watched').on('click', '.movie_poster', function (e) {
         renderMovieDetail(e.currentTarget.dataset.movieId);
         // renderSearchOverlay();
@@ -399,7 +399,6 @@ function renderWatchDetail(obj, img) {
 function init() {
     checkLocalStorage();
     renderHomeScreen();
-    console.log(WATCHED)
 }
 
 
