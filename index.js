@@ -246,6 +246,8 @@ function save() {
 }
 
 function read() {
+    alert(localStorage)
+    console.log(localStorage)
     try {
         FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
         WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
