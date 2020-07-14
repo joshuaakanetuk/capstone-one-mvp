@@ -5,6 +5,7 @@
 html, body {
     margin: 0 auto;
     /* height: 100%; */
+    
 }
 
 img {
@@ -22,7 +23,7 @@ nav {
     margin: 0 auto;
     /* border-bottom: 1px black solid; */
     color: white;
-    padding: 10px;
+    padding: 30px 10px;
     display: flex;
     justify-content: space-between;
 
@@ -51,7 +52,7 @@ input {
 
 input[type=date] {
     border: none;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 main {
@@ -73,10 +74,13 @@ textarea {
     resize: none;
     width: 100%;
     height: 115px;
+    -webkit-appearance: none;
+    border-radius: 0;
 }
 
 /* IDS */
 #overlay {
+    transition: all 1s cubic-bezier(0.075, 0.82, 0.165, 1);
     position: fixed;
     height: 100%;
     width: 100%;
@@ -85,6 +89,7 @@ textarea {
     justify-content: center;
     z-index: 1000;
     align-items: center;
+    opacity: 1;
 }
 
 #ui {
@@ -129,7 +134,7 @@ textarea {
 }
 
 
-#recent_watched h1 {
+#recent_watched h1,  .movie_info h2{
     margin-top: 0;
     margin-bottom: 0;
     font-size: 2em;
@@ -166,7 +171,7 @@ textarea {
 #recent_watched .movie_info {
     margin-left: 20px;
     display: inline-block;
-    max-width: 75%;
+    flex:1 1 50%;
 }
 
 #movie-backdrop-container {
@@ -189,7 +194,8 @@ textarea {
 
 /*  CLASSES */
 .movie_poster {
-    width: 86px;
+    width: 92px;
+    
 
 }
 
@@ -199,6 +205,7 @@ textarea {
 }
 .hidden {
     display: none !important;
+    opacity: 0;
 }
 
 .overlay-search ul {
@@ -257,6 +264,10 @@ textarea {
     text-decoration: underline;
 }
 
+.movie_detail .content {
+    margin-top: -30px;
+}
+
 .placeholder {
     cursor: no-drop;
     border: 1px dashed white !important;
@@ -302,21 +313,61 @@ textarea {
 }
 
 .rating {
-    unicode-bidi: bidi-override;
-    direction: rtl;
-  }
-  .rating > span {
-    display: inline-block;
-    position: relative;
-    width: 1.1em;
-  }
-  .rating > span:hover:before,
-  .rating > span:hover ~ span:before {
-     content: "\2605";
-     position: absolute;
-  }
-
+unicode-bidi: bidi-override;
+direction: rtl;
+}
+.rating > span {
+display: inline-block;
+position: relative;
+width: 1.1em;
+}
+.rating > span:hover:before,
+.rating > span:hover ~ span:before {
+    content: "\2605";
+    position: absolute;
+}
 .rating--selected, .rating--selected::before{
     content: '\2605';
     position: absolute;
+}
+
+.movie_poster {
+    border: 1px solid white;
+}
+
+.movie_cast li, .movie_crew li{
+    padding: 3px 4px;
+    border:1px solid white;
+    border-radius: 8px;
+    margin: 0 9px 10px 0;
+    font-size: 14px;
+}
+
+b {
+    color: lightgreen;
+}
+
+.imdb  a{
+    color: black;
+    padding: 5px 4px;
+    background-color: rgb(245, 197, 24);
+    text-decoration: none;
+    font-weight: bolder;
+    border-radius: 8px;
+}
+
+footer {
+    font-size: 12px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+@media all and (min-width: 600px) {
+    .movie_poster {
+        width: 154px;
+        
+    
+    }
+
 }

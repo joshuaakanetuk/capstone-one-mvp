@@ -1,8 +1,8 @@
 'use strict';
 
 const basepath = 'https://api.themoviedb.org/3';
-const imagebase = 'https://image.tmdb.org/t/p/w500'
-const imagebase92 = 'https://image.tmdb.org/t/p/w92'
+const imagebase = 'https://image.tmdb.org/t/p/original'
+const imagebase92 = 'https://image.tmdb.org/t/p/w154'
 const searchEndpoint = 'search/movie'
 const movieEndpoint = 'movie'
 
@@ -68,6 +68,15 @@ function dateToString(str) {
     return month[newDate.getMonth()] + " " + newDate.getDate() + ", " + newDate.getFullYear();
 }
 
+function beenWatchedNumbner(id) {
+    let num = 0;
+    WATCHED.forEach(element => {
+        if (element.movie.movie_id === id)
+            num++;
+    });
+    return num;
+}
+
 function doubleDigits(int) {
 
     if (int < 10)
@@ -97,8 +106,33 @@ function fetchHelp(endpoint, path, q) {
         .catch(err => console.log(err))
 }
 
+function castToString(obj) {
+    return `<li>${obj.name}</li>`;
+}
+
+function castToList(arr) {
+    arr = arr.slice(0, 16);
+    const castList = arr.map(member => castToString(member)).join('');
+    return castList;
+}
+
+
+function findInArray(arr) {
+    let found = arr.filter(word => word.job === "Director");
+    console.log(found);
+    return found;
+}
+
 function convertMovieOBJ(obj) {
-    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="background-image: url('${imagebase + obj.backdrop_path}')"> <div id="movie_backdrop"></div> </section> <div class="content"> <div class="movie_poster"> <img src="${imagebase92 + obj.poster_path}" /> </div> <div class="movie_info"> <h2>${obj.title}</h2><small>dir.</small> <small>${obj.runtime} mins</small> <div>Watched <b>10</b> times</div> </div><div class="movie_cast"> <small>CAST</small> <ul> <li> Kaitlyn Dever </li> <li> Beanie Feldstein </li> </ul> </div> </div> </section>`
+    console.log(obj)
+    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
+    <section class="content" style="margin-top: -80px;"> <div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div> <div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
+    <div class="movie_overview" style="margin-bottom: 40px;">${obj[1].overview}</div>
+    <div class="movie_cast"> 
+    <small>CAST</small> 
+    <ul style="display: flex; flex-wrap: wrap;">${castToList(obj[0].cast)}</ul></div><div class="movie_crew"> 
+    <small>CREW</small> 
+    <ul style="display: flex; flex-wrap: wrap;">${castToList(obj[0].crew)}</ul> </div> <div class="imdb">More Info: <a href="https://www.imdb.com/title/${obj[1].imdb_id}">IMDb</a</div> </section> </section>`
 }
 
 function watchedList() {
@@ -119,9 +153,8 @@ function checkLocalStorage() {
     // Check browser support
     if (typeof (Storage) !== "undefined") {
         // Store
-        localStorage.setItem("FAVORITES", "string");
-        // Retrieve
-        // document.getElementById("result").innerHTML = localStorage.getItem("FAVORITES");
+
+        
     } else {
         alert('Watched has an autosave feature for devices, but since your browser doesn\'t support it you won\'t be able to save your watched history without exporting manually.');
         document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
@@ -145,11 +178,11 @@ function onStarClick() {
         let arrofstars = document.querySelectorAll('.rating span')
         starCount = ind;
         console.log(starCount)
-        for(var i = 4; i >= ind; i--) {
+        for (var i = 4; i >= ind; i--) {
             $(arrofstars[i]).addClass('rating--selected');
-            
+
         }
-        for(var i = 0; i < ind; i++) {
+        for (var i = 0; i < ind; i++) {
             $(arrofstars[i]).removeClass('rating--selected');
         }
 
@@ -158,6 +191,7 @@ function onStarClick() {
 
 function onNavClick() {
     $('#addbutton').on('click', function (e) {
+        console.log('cl')
         e.stopPropagation();
         renderSearchOverlay();
         overlayListener();
@@ -165,7 +199,7 @@ function onNavClick() {
 }
 
 function goHome() {
-    $('nav').on('click', function (e) {
+    $('#gobackbutton').on('click', function (e) {
         e.stopPropagation();
         renderHomeScreen();
     });
@@ -178,6 +212,32 @@ function onClickSearchOverlay() {
 
     });
 
+
+}
+
+
+function movieFetch(id) {
+    return Promise.all([fetchHelp(movieEndpoint, id + "/credits", ''), fetchHelp(movieEndpoint, id, '')]).then((values) => {
+        return values;
+    });
+}
+
+
+function save() {
+
+    let watch_string = JSON.stringify(WATCHED);
+    let favorites_string = JSON.stringify(FAVORITES);
+
+    localStorage.setItem("WATCHED", watch_string);
+    localStorage.setItem("FAVORITES", favorites_string);
+
+}
+
+function read() {
+
+    // console.log(JSON.parse(localStorage.getItem("FAVORITES")));
+    FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
+    WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
 
 }
 
@@ -201,12 +261,12 @@ function renderRecent(num) {
 
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
-
+    $('#addbutton').off();
+    read();
     renderFavorites();
     renderRecent(1);
     onNavClick();
-    console.log(WATCHED)
-    
+
     $('#recent_watched').on('click', '.movie_poster', function (e) {
         renderMovieDetail(e.currentTarget.dataset.movieId);
         // renderSearchOverlay();
@@ -215,21 +275,14 @@ function renderHomeScreen() {
 
 }
 
+
+
+
 function renderMovieDetail(id) {
-    //fetchHelp(movieEndpoint, id + "/credits", '')    
-
-    Promise.all([fetchHelp(movieEndpoint, id + "/credits", '')  , fetchHelp(movieEndpoint, id, '')]).then((values) => {
-        console.log(values);
-      });
-
-    fetchHelp(movieEndpoint, id, '')
-        .then(data => {
-            console.log(data)
-            // convertMovieOBJ(data) 
-        })
+    movieFetch(id)
+        .then(data => convertMovieOBJ(data))
         .then(str => {
-            // $('main').html(str)
-
+            $('main').html(str);
         })
         .catch(err => console.log(err));
     goHome();
@@ -239,30 +292,30 @@ function renderMovieDetail(id) {
 
 // }
 
-// function overlayListener() {
-//     $('#overlay').on('click', function (e) {
-//         e.stopPropagation();
-//         console.log(e);
-//         if ((e.target.id) == 'overlay') {
-//             $('#overlay').toggleClass('hidden');
-//             $("#overlay").off()
-//         }
-//         else {
-//         }
-//     });
-// }
+function overlayListener() {
+    $('#overlay').on('click', function (e) {
+        e.stopPropagation();
+        console.log(e);
+        if ((e.target.id) == 'overlay') {
+            $('#overlay').toggleClass('hidden');
+            $("#overlay").off()
+        }
+        else {
+        }
+    });
+}
 
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
     console.log(arr)
-    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}" data-movie-release="${watch.release_date.substring(0, 4)}"><div class="results--item"><div><img src="${imagebase + watch.poster_path}" /></div><span>${watch.title} (${watch.release_date.substring(0, 4)})</span></div></li>`);
+    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}" data-movie-release="${watch.release_date.substring(0, 4)}"><div class="results--item"><div><img src="${(watch.poster_path) ? imagebase92 + watch.poster_path : "http://placehold.it/34x54?text=" + watch.title}" /></div><span>${watch.title} (${watch.release_date.substring(0, 4)})</span></div></li>`);
 }
 
 function renderSearchOverlay() {
-    
+
     $('#overlay').toggleClass('hidden');
     $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
-    
+
 
     $('#name').on('input', function () {
         fetchHelp(searchEndpoint, '', $('#name').val())
@@ -301,6 +354,7 @@ function renderWatchDetail(obj, img) {
 
         $('#ui').off();
         $('#overlay').toggleClass('hidden');
+        save();
         renderHomeScreen();
         $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
         overlayListener();
