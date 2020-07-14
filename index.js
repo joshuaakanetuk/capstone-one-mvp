@@ -242,9 +242,14 @@ function save() {
 
 function read() {
 
-    // console.log(JSON.parse(localStorage.getItem("FAVORITES")));
-    FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
-    WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
+    try {
+        FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
+        WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
+    }
+    catch {
+        console.log("Error loading watched.")
+    }
+    
 
 }
 
