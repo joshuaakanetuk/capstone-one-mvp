@@ -257,7 +257,7 @@ function read() {
 
 
 function removeWatched(id) {
-    WATCHED.splice(id, 1)
+    // WATCHED.splice(id, 1)
     // save();
 }
 
@@ -285,7 +285,7 @@ function renderRecent(num) {
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
     $('#addbutton').off();
-    // read();
+    read();
     renderFavorites();
     renderRecent(1);
     onNavClick();
