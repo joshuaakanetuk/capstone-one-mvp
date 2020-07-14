@@ -19,7 +19,7 @@ ul {
 
 nav {
     /* height: 60px; */
-    max-width: 720px;
+    max-width: 830px;
     margin: 0 auto;
     /* border-bottom: 1px black solid; */
     color: white;
@@ -68,7 +68,7 @@ main {
     margin: 0 auto;
     padding: 10px;
     height: 100%;
-    max-width: 720px;
+    max-width: 830px;
     /* border-left: 1px solid white;
     border-right: 1px solid white; */
 }
@@ -85,6 +85,8 @@ textarea {
     height: 115px;
     -webkit-appearance: none;
     border-radius: 0;
+    font-family: 16px;
+    padding: 8px;
 }
 
 /* IDS */
@@ -346,11 +348,28 @@ width: 1.1em;
 
 .movie_cast li, .movie_crew li{
     padding: 3px 4px;
-    border:1px solid white;
+    color: black;
+    background-color: white;
+    /* border:1px solid white; */
     border-radius: 8px;
-    margin: 0 9px 10px 0;
-    font-size: 14px;
+    margin: 0 10px 10px 0;
+    font-size: 15px;
+    font-weight: bolder;
 }
+
+.unfavorite {
+  position: absolute;
+  display: none;
+  top: -10px;
+  right: -10px;
+  padding: 5px 10px;
+  z-index: 10;
+  border-radius: 50%;
+  font-size: 12px;
+  background: red;
+  color: white;
+}
+
 
 b {
     color: lightgreen;

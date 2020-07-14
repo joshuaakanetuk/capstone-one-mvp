@@ -10,8 +10,9 @@ const month = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
-// const creditsEndpoint = 'credits'
 
+
+let starNum = 1;
 let api = '84c0eecf8b46a2b1c3460770ad19e7fa';
 let FAVORITES = [
     {
@@ -28,7 +29,7 @@ let FAVORITES = [
 let WATCHED = [
     {
         date_watched: 'Mon Jul 13 2020 20:33:54 GMT-0400 (Eastern Daylight Time)',
-        favorite: false,
+        favorite: true,
         star_count: 4,
         review_content: 'helelelelelellelel.e.ef,sdfl,dsnm hjdsklfhjdsklfjhkldsjfkl',
         movie: {
@@ -56,6 +57,7 @@ let watch = {
 }
 
 let favorite = {
+    id: "",
     movie_id: "",
     movie_title: "",
     movie_poster: ""
@@ -71,7 +73,7 @@ function dateToString(str) {
 function beenWatchedNumbner(id) {
     let num = 0;
     WATCHED.forEach(element => {
-        if (element.movie.movie_id === id)
+        if (element.movie.movie_id == id)
             num++;
     });
     return num;
@@ -136,11 +138,14 @@ function convertMovieOBJ(obj) {
 }
 
 function watchedList() {
-    var reverse = WATCHED;
-    reverse = reverseArray(reverse);
-    const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
-    let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
-    $('main').append(watchedContain);
+    if (WATCHED.length > 0) {
+        var reverse = WATCHED;
+        reverse = reverseArray(reverse);
+        const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
+        let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
+        $('main').append(watchedContain);
+    }
+
 
 }
 
@@ -154,7 +159,7 @@ function checkLocalStorage() {
     if (typeof (Storage) !== "undefined") {
         // Store
 
-        
+
     } else {
         alert('Watched has an autosave feature for devices, but since your browser doesn\'t support it you won\'t be able to save your watched history without exporting manually.');
         document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
@@ -171,13 +176,13 @@ function onClickHandler() {
 
 
 function onStarClick() {
-    let starCount = 0;
     $('.rating span').on('click', function (e) {
+        starNum = 1;
         // e.stopPropagation();
         let ind = $('.rating span').index(this);
         let arrofstars = document.querySelectorAll('.rating span')
-        starCount = ind;
-        console.log(starCount)
+        starNum = ind;
+        console.log(starNum)
         for (var i = 4; i >= ind; i--) {
             $(arrofstars[i]).addClass('rating--selected');
 
@@ -212,10 +217,10 @@ function onClickSearchOverlay() {
         console.log()
 
         fetchHelp(movieEndpoint, e.currentTarget.dataset.movieId + "/credits", '')
-        .then(data => {
-            renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name) 
-        })
-        .catch(err=>console.log(err))
+            .then(data => {
+                renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name)
+            })
+            .catch(err => console.log(err))
 
     });
 
@@ -241,7 +246,6 @@ function save() {
 }
 
 function read() {
-
     try {
         FAVORITES = JSON.parse(localStorage.getItem("FAVORITES"));
         WATCHED = JSON.parse(localStorage.getItem(("WATCHED")));
@@ -249,18 +253,25 @@ function read() {
     catch {
         console.log("Error loading watched.")
     }
-    
+}
 
+
+function removeWatched(id) {
+    WATCHED.splice(id, 1)
+    // save();
 }
 
 /* COMPONENT RENDER FUNCTIONS */
 function renderFavorites() {
+
+
+
     let lis = ``;
     for (let i = 0; i < 5; i++) {
         if (!FAVORITES[i])
             lis += `<li class="placeholder"></li>`
         else
-            lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/></li>`
+            lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite">X</span></li>`
     }
     let favorites = `<section id="favorites" class="dropzone"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);
@@ -274,7 +285,7 @@ function renderRecent(num) {
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
     $('#addbutton').off();
-    read();
+    // read();
     renderFavorites();
     renderRecent(1);
     onNavClick();
@@ -344,7 +355,7 @@ function renderSearchOverlay() {
 };
 
 function renderWatchDetail(obj, img) {
-    console.log(arguments)
+    let dir = arguments[2] || "not found";
     const currentTime = new Date();
     console.log(obj, img)
     //if existing watch
@@ -354,13 +365,15 @@ function renderWatchDetail(obj, img) {
     $('#ui').on('click', 'input[type=button]', function (e) {
         WATCHED.push({
             date_watched: currentTime,
-            favorite: false,
-            star_count: 3,
+            favorite: ($('#favorite').is(':checked')),
+            star_count: 5 - starNum,
             review_content: $('#reviewContent').val(),
             movie: {
                 movie_id: obj.movieId,
                 movie_title: obj.movieTitle,
-                movie_poster: img
+                movie_poster: img,
+                movie_dir: dir,
+                movie_year: obj.movieRelease
             }
 
         });
@@ -384,6 +397,7 @@ function renderWatchDetail(obj, img) {
 function init() {
     checkLocalStorage();
     renderHomeScreen();
+    console.log(WATCHED)
 }
 
 
