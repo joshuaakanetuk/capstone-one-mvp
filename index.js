@@ -1,7 +1,7 @@
 'use strict';
 
 const basepath = 'https://api.themoviedb.org/3';
-const imagebase = 'https://image.tmdb.org/t/p/w300'
+const imagebase = 'https://image.tmdb.org/t/p/w500'
 const imagebase92 = 'https://image.tmdb.org/t/p/w92'
 const searchEndpoint = 'search/movie'
 const movieEndpoint = 'movie'
@@ -9,7 +9,7 @@ const movieEndpoint = 'movie'
 const month = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
-  ];
+];
 // const creditsEndpoint = 'credits'
 
 let api = '84c0eecf8b46a2b1c3460770ad19e7fa';
@@ -65,16 +65,30 @@ let favorite = {
 /* HELPER FUNCTIONS */
 function dateToString(str) {
     let newDate = new Date(str);
-    return month[newDate.getMonth()] + " " +  newDate.getDate() + ", " + newDate.getFullYear();
+    return month[newDate.getMonth()] + " " + newDate.getDate() + ", " + newDate.getFullYear();
+}
+
+function doubleDigits(int) {
+
+    if (int < 10)
+        return `0${int}`
+    else
+        return int
+
+}
+
+function dateForInput(str) {
+    let newDate = new Date(str);
+    return `${newDate.getFullYear()}-${doubleDigits(newDate.getMonth())}-${doubleDigits(newDate.getDate())}`
 }
 
 function reverseArray(arr) {
     var newArray = [];
     for (var i = arr.length - 1; i >= 0; i--) {
-      newArray.push(arr[i]);
+        newArray.push(arr[i]);
     }
     return newArray;
-  }
+}
 
 
 function fetchHelp(endpoint, path, q) {
@@ -84,7 +98,7 @@ function fetchHelp(endpoint, path, q) {
 }
 
 function convertMovieOBJ(obj) {
-    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="background-image: url('${imagebase + obj.backdrop_path}')"> <div id="movie_backdrop"></div> </section> <div class="content"> <div class="movie_poster"> <img src="${imagebase + obj.poster_path}" /> </div> <div class="movie_info"> <h2>${obj.title}</h2><small>dir.</small> <small>${obj.runtime} mins</small> <div>Watched <b>10</b> times</div> </div><div class="movie_cast"> <small>CAST</small> <ul> <li> Kaitlyn Dever </li> <li> Beanie Feldstein </li> </ul> </div> </div> </section>`
+    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="background-image: url('${imagebase + obj.backdrop_path}')"> <div id="movie_backdrop"></div> </section> <div class="content"> <div class="movie_poster"> <img src="${imagebase92 + obj.poster_path}" /> </div> <div class="movie_info"> <h2>${obj.title}</h2><small>dir.</small> <small>${obj.runtime} mins</small> <div>Watched <b>10</b> times</div> </div><div class="movie_cast"> <small>CAST</small> <ul> <li> Kaitlyn Dever </li> <li> Beanie Feldstein </li> </ul> </div> </div> </section>`
 }
 
 function watchedList() {
@@ -97,7 +111,7 @@ function watchedList() {
 }
 
 function watchToString(obj) {
-    return `<li><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. ${obj.movie.movie_dir}</small> <br><br><div>Watched on ${dateToString(obj.date_watched)}</div> <div>${obj.review_content}</div><div class="movie_stars">${obj.star_count} <i class="fa fa-star" aria-hidden="true"></i> </div></div> </li>`;
+    return `<li><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. ${obj.movie.movie_dir}</small> <br><br><div>Watched on ${dateToString(obj.date_watched)}</div> <div style="word-break: break-all;">${obj.review_content}</div><div class="movie_stars">${obj.star_count} <i class="fa fa-star" aria-hidden="true"></i> </div></div> </li>`;
 }
 
 
@@ -116,13 +130,30 @@ function checkLocalStorage() {
 
 function onClickHandler() {
     $('#favorite__drawer').on('click', 'li', function (e) {
-        if(e.currentTarget.dataset.movieId)
+        if (e.currentTarget.dataset.movieId)
             renderMovieDetail(e.currentTarget.dataset.movieId);
 
     });
+}
 
-    
 
+function onStarClick() {
+    let starCount = 0;
+    $('.rating span').on('click', function (e) {
+        // e.stopPropagation();
+        let ind = $('.rating span').index(this);
+        let arrofstars = document.querySelectorAll('.rating span')
+        starCount = ind;
+        console.log(starCount)
+        for(var i = 4; i >= ind; i--) {
+            $(arrofstars[i]).addClass('rating--selected');
+            
+        }
+        for(var i = 0; i < ind; i++) {
+            $(arrofstars[i]).removeClass('rating--selected');
+        }
+
+    });
 }
 
 function onNavClick() {
@@ -175,7 +206,7 @@ function renderHomeScreen() {
     renderRecent(1);
     onNavClick();
     console.log(WATCHED)
-
+    
     $('#recent_watched').on('click', '.movie_poster', function (e) {
         renderMovieDetail(e.currentTarget.dataset.movieId);
         // renderSearchOverlay();
@@ -185,10 +216,19 @@ function renderHomeScreen() {
 }
 
 function renderMovieDetail(id) {
+    //fetchHelp(movieEndpoint, id + "/credits", '')    
+
+    Promise.all([fetchHelp(movieEndpoint, id + "/credits", '')  , fetchHelp(movieEndpoint, id, '')]).then((values) => {
+        console.log(values);
+      });
+
     fetchHelp(movieEndpoint, id, '')
-        .then(data => convertMovieOBJ(data))
+        .then(data => {
+            console.log(data)
+            // convertMovieOBJ(data) 
+        })
         .then(str => {
-            $('main').html(str)
+            // $('main').html(str)
 
         })
         .catch(err => console.log(err));
@@ -199,18 +239,18 @@ function renderMovieDetail(id) {
 
 // }
 
-function overlayListener() {
-    $('#overlay').on('click', function (e) {
-        e.stopPropagation();
-        console.log(e);
-        if ((e.target.id) == 'overlay' ) {
-            $('#overlay').toggleClass('hidden');
-            $("#overlay").off()
-        }
-        else {
-        }
-    });
-}
+// function overlayListener() {
+//     $('#overlay').on('click', function (e) {
+//         e.stopPropagation();
+//         console.log(e);
+//         if ((e.target.id) == 'overlay') {
+//             $('#overlay').toggleClass('hidden');
+//             $("#overlay").off()
+//         }
+//         else {
+//         }
+//     });
+// }
 
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
@@ -219,8 +259,10 @@ function mapSearchList(arr) {
 }
 
 function renderSearchOverlay() {
+    
     $('#overlay').toggleClass('hidden');
     $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
+    
 
     $('#name').on('input', function () {
         fetchHelp(searchEndpoint, '', $('#name').val())
@@ -240,7 +282,8 @@ function renderWatchDetail(obj, img) {
     const currentTime = new Date();
     console.log(obj, img)
     //if existing watch
-    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 8px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><span>${obj.movieTitle} (${obj.movieRelease})</span></div><br><div>Date Watched: ${dateToString(currentTime)}</div><textarea id="reviewContent"></textarea><input type="button" value="Add" /></div>`)
+    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 8px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><span>${obj.movieTitle} (${obj.movieRelease})</span></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="off" id="reviewContent" style="margin-top: 10px;"></textarea><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><input type="checkbox" id="favorite" name="favorite"><input type="button" value="Add" /></div>`)
+    onStarClick();
 
     $('#ui').on('click', 'input[type=button]', function (e) {
         WATCHED.push({
@@ -269,12 +312,17 @@ function renderWatchDetail(obj, img) {
 
 
 
+
+
 function init() {
     checkLocalStorage();
     renderHomeScreen();
 }
 
 
+// Need listeners on each view switch
+
+//$('textarea').autoResize();
 // window.onload = (e) => {
 //     init();
 // }
