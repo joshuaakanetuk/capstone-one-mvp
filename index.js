@@ -1,9 +1,15 @@
 'use strict';
 
 const basepath = 'https://api.themoviedb.org/3';
-const imagebase = 'https://image.tmdb.org/t/p/w500'
+const imagebase = 'https://image.tmdb.org/t/p/w300'
+const imagebase92 = 'https://image.tmdb.org/t/p/w92'
 const searchEndpoint = 'search/movie'
 const movieEndpoint = 'movie'
+
+const month = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 // const creditsEndpoint = 'credits'
 
 let api = '84c0eecf8b46a2b1c3460770ad19e7fa';
@@ -21,25 +27,16 @@ let FAVORITES = [
 ];
 let WATCHED = [
     {
-        date_watched: 'July 20, 2020',
+        date_watched: 'Mon Jul 13 2020 20:33:54 GMT-0400 (Eastern Daylight Time)',
         favorite: false,
         star_count: 4,
-        review_content: '',
+        review_content: 'helelelelelellelel.e.ef,sdfl,dsnm hjdsklfhjdsklfjhkldsjfkl',
         movie: {
             movie_id: 505600,
             movie_title: `Booksmart`,
-            movie_poster: `${imagebase}/micaVOa1UZsdzs4fKGA67ZMGOzc.jpg`
-        }
-    },
-    {
-        date_watched: 'July 08, 2020',
-        favorite: true,
-        star_count: 3,
-        review_content: '',
-        movie: {
-            movie_id: 419704,
-            movie_title: `Ad Astra`,
-            movie_poster: `${imagebase}/xBHvZcjRiWyobQ9kxBhO6B2dtRI.jpg`
+            movie_poster: `${imagebase92}/micaVOa1UZsdzs4fKGA67ZMGOzc.jpg`,
+            movie_dir: `Olivia Wilde`,
+            movie_year: ``
         }
     }
 ];
@@ -52,7 +49,9 @@ let watch = {
     movie: {
         movie_id: '',
         movie_title: ``,
-        movie_poster: ``
+        movie_poster: ``,
+        movie_dir: `Olivia Wilde`,
+        movie_year: ``
     }
 }
 
@@ -64,6 +63,20 @@ let favorite = {
 
 
 /* HELPER FUNCTIONS */
+function dateToString(str) {
+    let newDate = new Date(str);
+    return month[newDate.getMonth()] + " " +  newDate.getDate() + ", " + newDate.getFullYear();
+}
+
+function reverseArray(arr) {
+    var newArray = [];
+    for (var i = arr.length - 1; i >= 0; i--) {
+      newArray.push(arr[i]);
+    }
+    return newArray;
+  }
+
+
 function fetchHelp(endpoint, path, q) {
     return fetch(`https://api.themoviedb.org/3/${endpoint}${(path) ? '/' + path : ''}?api_key=${api}&query=${q}`, { mode: 'cors' })
         .then(response => response.json())
@@ -75,15 +88,16 @@ function convertMovieOBJ(obj) {
 }
 
 function watchedList() {
-    const reverse = WATCHED.reverse();
+    var reverse = WATCHED;
+    reverse = reverseArray(reverse);
     const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
-    let watchedContain = `<section id="recent"> <span id="recent_header"> <h2>RECENTLY WATCHED:</h2> <small>MORE</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
+    let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
     $('main').append(watchedContain);
 
 }
 
 function watchToString(obj) {
-    return `<li><div class="movie_poster" style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. Oliva Wilde</small> <div>Watched on ${obj.date_watched}</div> <div>${obj.review_content}</div><div class="movie_stars"> ${obj.star_count}<i class="fa fa-star" aria-hidden="true"></i> </div> <div class="movie_watched_edit">Edit</div> </div> </li>`;
+    return `<li><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. ${obj.movie.movie_dir}</small> <br><br><div>Watched on ${dateToString(obj.date_watched)}</div> <div>${obj.review_content}</div><div class="movie_stars">${obj.star_count} <i class="fa fa-star" aria-hidden="true"></i> </div></div> </li>`;
 }
 
 
@@ -102,10 +116,13 @@ function checkLocalStorage() {
 
 function onClickHandler() {
     $('#favorite__drawer').on('click', 'li', function (e) {
-        renderMovieDetail(e.currentTarget.dataset.movieId);
-        // renderSearchOverlay();
+        if(e.currentTarget.dataset.movieId)
+            renderMovieDetail(e.currentTarget.dataset.movieId);
 
     });
+
+    
+
 }
 
 function onNavClick() {
@@ -135,15 +152,14 @@ function onClickSearchOverlay() {
 
 /* COMPONENT RENDER FUNCTIONS */
 function renderFavorites() {
-    // <img src="" alt="${FAVORITES[i].movie_title} movie poster."/>
     let lis = ``;
     for (let i = 0; i < 5; i++) {
         if (!FAVORITES[i])
-            lis += `<li>+</li>`
+            lis += `<li class="placeholder"></li>`
         else
             lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/></li>`
     }
-    let favorites = `<section id="favorites"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
+    let favorites = `<section id="favorites" class="dropzone"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);
     onClickHandler();
 }
@@ -154,9 +170,18 @@ function renderRecent(num) {
 
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
+
     renderFavorites();
     renderRecent(1);
     onNavClick();
+    console.log(WATCHED)
+
+    $('#recent_watched').on('click', '.movie_poster', function (e) {
+        renderMovieDetail(e.currentTarget.dataset.movieId);
+        // renderSearchOverlay();
+
+    });
+
 }
 
 function renderMovieDetail(id) {
@@ -170,9 +195,9 @@ function renderMovieDetail(id) {
     goHome();
 }
 
-function renderAllWatchedScreen() {
+// function renderAllWatchedScreen() {
 
-}
+// }
 
 function overlayListener() {
     $('#overlay').on('click', function (e) {
@@ -189,12 +214,13 @@ function overlayListener() {
 
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
-    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}"><div class="results_list"><div><img src="${imagebase + watch.poster_path}" /></div><span>${watch.title}</span></div></li>`);
+    console.log(arr)
+    return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}" data-movie-release="${watch.release_date.substring(0, 4)}"><div class="results--item"><div><img src="${imagebase + watch.poster_path}" /></div><span>${watch.title} (${watch.release_date.substring(0, 4)})</span></div></li>`);
 }
 
 function renderSearchOverlay() {
     $('#overlay').toggleClass('hidden');
-    $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
+    $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
 
     $('#name').on('input', function () {
         fetchHelp(searchEndpoint, '', $('#name').val())
@@ -214,7 +240,7 @@ function renderWatchDetail(obj, img) {
     const currentTime = new Date();
     console.log(obj, img)
     //if existing watch
-    $('#ui').html(`<div style="background-color: white; padding: 20px; color: black;" ><div>${obj.movieTitle}</div><br><img style="width: 32px;" src="${img}"/><br><div>Date Watched: ${currentTime}</div><textarea id="reviewContent"></textarea><input type="button" value="Add" /></div>`)
+    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 8px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><span>${obj.movieTitle} (${obj.movieRelease})</span></div><br><div>Date Watched: ${dateToString(currentTime)}</div><textarea id="reviewContent"></textarea><input type="button" value="Add" /></div>`)
 
     $('#ui').on('click', 'input[type=button]', function (e) {
         WATCHED.push({
@@ -254,6 +280,4 @@ function init() {
 // }
 
 $(init);
-
-
 
