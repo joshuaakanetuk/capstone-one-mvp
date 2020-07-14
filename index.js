@@ -208,7 +208,14 @@ function goHome() {
 function onClickSearchOverlay() {
     $('#results').on('click', 'li', function (e) {
         // e.stopPropagation();
-        renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src);
+
+        console.log()
+
+        fetchHelp(movieEndpoint, e.currentTarget.dataset.movieId + "/credits", '')
+        .then(data => {
+            renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name) 
+        })
+        .catch(err=>console.log(err))
 
     });
 
@@ -332,10 +339,11 @@ function renderSearchOverlay() {
 };
 
 function renderWatchDetail(obj, img) {
+    console.log(arguments)
     const currentTime = new Date();
     console.log(obj, img)
     //if existing watch
-    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 8px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><span>${obj.movieTitle} (${obj.movieRelease})</span></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="off" id="reviewContent" style="margin-top: 10px;"></textarea><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><input type="checkbox" id="favorite" name="favorite"><input type="button" value="Add" /></div>`)
+    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="off" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
     onStarClick();
 
     $('#ui').on('click', 'input[type=button]', function (e) {
