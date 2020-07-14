@@ -270,7 +270,7 @@ function renderFavorites() {
 
     let lis = ``;
     for (let i = 0; i < 5; i++) {
-        if (!(FAVORITES[i]))
+        if (FAVORITES[i].length = 0)
             lis += `<li class="placeholder"></li>`
         else
             lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite">X</span></li>`
