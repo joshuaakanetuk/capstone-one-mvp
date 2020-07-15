@@ -11,58 +11,11 @@ const month = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-
-let starNum = 1;
+// Since the CSS for stars is backwards the default rating is 1
+let starNum = 4;
 let api = '84c0eecf8b46a2b1c3460770ad19e7fa';
-let FAVORITES = [
-    {
-        movie_id: 505600,
-        movie_title: `Booksmart`,
-        movie_poster: `${imagebase}/micaVOa1UZsdzs4fKGA67ZMGOzc.jpg`
-    },
-    {
-        movie_id: 419704,
-        movie_title: `Ad Astra`,
-        movie_poster: `${imagebase}/xBHvZcjRiWyobQ9kxBhO6B2dtRI.jpg`
-    }
-];
-let WATCHED = [
-    {
-        date_watched: 'Mon Jul 13 2020 20:33:54 GMT-0400 (Eastern Daylight Time)',
-        favorite: true,
-        star_count: 4,
-        review_content: 'helelelelelellelel.e.ef,sdfl,dsnm hjdsklfhjdsklfjhkldsjfkl',
-        movie: {
-            movie_id: 505600,
-            movie_title: `Booksmart`,
-            movie_poster: `${imagebase92}/micaVOa1UZsdzs4fKGA67ZMGOzc.jpg`,
-            movie_dir: `Olivia Wilde`,
-            movie_year: ``
-        }
-    }
-];
-
-let watch = {
-    date_watched: '',
-    favorite: false,
-    star_count: '',
-    review_content: '',
-    movie: {
-        movie_id: '',
-        movie_title: ``,
-        movie_poster: ``,
-        movie_dir: `Olivia Wilde`,
-        movie_year: ``
-    }
-}
-
-let favorite = {
-    id: "",
-    movie_id: "",
-    movie_title: "",
-    movie_poster: ""
-}
-
+let WATCHED = [];
+let FAVORITES = [];
 
 /* HELPER FUNCTIONS */
 function dateToString(str) {
@@ -128,7 +81,7 @@ function findInArray(arr) {
 function convertMovieOBJ(obj) {
     console.log(obj)
     return `<section id="movie_detail"> <section id="movie-backdrop-container" style="margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
-    <section class="content" style="margin-top: -80px;"> <div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div> <div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
+    <section class="content" style="margin-top: -80px;"><div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div><div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div style="color: lightgreen;margin-top: 10px;" class="tagline"><small>${obj[1].tagline}</small></div><div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
     <div class="movie_overview" style="margin-bottom: 40px;">${obj[1].overview}</div>
     <div class="movie_cast"> 
     <small>CAST</small> 
@@ -138,19 +91,15 @@ function convertMovieOBJ(obj) {
 }
 
 function watchedList() {
-    if (WATCHED.length > 0) {
-        var reverse = WATCHED;
-        reverse = reverseArray(reverse);
-        const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
-        let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
-        $('main').append(watchedContain);
-    }
-
-
+    var reverse = WATCHED;
+    reverse = reverseArray(reverse);
+    const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
+    let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
+    $('main').append(watchedContain);
 }
 
 function watchToString(obj) {
-    return `<li><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div> <div class="movie_info"> <h1>${obj.movie.movie_title}</h1> <small>dir. ${obj.movie.movie_dir}</small> <br><br><div>Watched on ${dateToString(obj.date_watched)}</div> <div style="word-break: break-all;">${obj.review_content}</div><div class="movie_stars">${obj.star_count} <i class="fa fa-star" aria-hidden="true"></i> </div></div> </li>`;
+    return `<li data-id="${obj.id}"><div class="" style="position: relative; display: flex; flex-direction: column; text-align: center;"><span class="unwatched hidden">X</span><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div><span class="edit--button" style="text-decoration: underline; margin-top: 5px;">Edit</span> </div><div class="movie_info"> <h1>${obj.movie.movie_title + " (" + obj.movie.movie_year + ")"} </h1> <small>dir. ${obj.movie.movie_dir}</small><div style="margin-top: 10px; word-break: break-all;">${obj.review_content}</div><div style="margin-top: 10px; font-size: 14px;">Watched on <b>${dateToString(obj.date_watched)}</b></div> <div class="movie_stars" style="margin-top: 10px; font-size: 14px;">${obj.star_count} <i class="fa fa-star" aria-hidden="true"></i> </div></div> </li>`;
 }
 
 
@@ -172,34 +121,65 @@ function onClickHandler() {
             renderMovieDetail(e.currentTarget.dataset.movieId);
 
     });
+
+
+    $('#favorite__drawer').hover(function (e) {
+        console.log(e)
+        $('.unfavorite').toggleClass('hidden')
+
+    });
+
 }
 
+function starFill(int) {
+        
+        let arrofstars = document.querySelectorAll('.rating span')
+        starNum = int;
+        console.log(starNum)
+        for (var i = 4; i >= int; i--) {
+            $(arrofstars[i]).addClass('rating--selected');
+
+        }
+        for (var i = 0; i < int; i++) {
+            $(arrofstars[i]).removeClass('rating--selected');
+        }
+
+}
 
 function onStarClick() {
     $('.rating span').on('click', function (e) {
         starNum = 1;
         // e.stopPropagation();
         let ind = $('.rating span').index(this);
-        let arrofstars = document.querySelectorAll('.rating span')
-        starNum = ind;
-        console.log(starNum)
-        for (var i = 4; i >= ind; i--) {
-            $(arrofstars[i]).addClass('rating--selected');
-
-        }
-        for (var i = 0; i < ind; i++) {
-            $(arrofstars[i]).removeClass('rating--selected');
-        }
+        starFill(ind);
 
     });
 }
 
 function onNavClick() {
+    $('#addbutton').off();
     $('#addbutton').on('click', function (e) {
-        console.log('cl')
         e.stopPropagation();
         renderSearchOverlay();
         overlayListener();
+    });
+}
+
+function onEditButtonClick() {
+    $('.edit--button').on('click', function (e) {
+        e.stopPropagation();
+        console.log(WATCHED[(this).closest('li').dataset.id]);
+        renderWatchDetail(WATCHED[(this).closest('li').dataset.id]);
+        // removeWatched($(this).closest('li').get()[0].dataset.id);
+    });
+}
+
+
+function onDeleteButtonClick() {
+    $('.unwatched').on('click', function (e) {
+        e.stopPropagation();
+        // console.log(e, $(this).closest('li').get());
+        removeWatched($(this).closest('li').get()[0].dataset.id);
     });
 }
 
@@ -238,43 +218,71 @@ function movieFetch(id) {
 function save() {
 
     let watch_string = JSON.stringify(WATCHED);
-    let favorites_string = JSON.stringify(FAVORITES);
-
     localStorage.setItem("WATCHED", watch_string);
-    localStorage.setItem("FAVORITES", favorites_string);
 
 }
 
-function read() {
-    let loadedFav, loadedWatch;
-    console.log(localStorage, FAVORITES)
-    if(localStorage.getItem("FAVORITES")) {
-        FAVORITES =  JSON.parse(localStorage.getItem("FAVORITES")) ;
-        
-    }
 
-    if(localStorage.getItem(("WATCHED"))) {
+function findFavorites() {
+    FAVORITES = [];
+    let newfav = "";
+    WATCHED.forEach(function (element, ind) {
+        if (element.favorite == true) {
+            if (FAVORITES.length == 0) {
+                newfav = element.movie;
+                newfav.id = ind;
+                FAVORITES.push(element.movie);
+            }
+            else {
+                FAVORITES.forEach(function (favorite, index) {
+                    if (element.movie.movie_id != favorite.movie_id && FAVORITES.length < 6) {
+                        newfav = element.movie;
+                        newfav.id = FAVORITES.length;
+                        FAVORITES.push(newfav);
+                    }
+                    // else {
+                    //     console.log(favorite)
+                    //     favorite.id = index;
+                    // }
+                });
+            }
+
+        }
+    });
+}
+
+function read() {
+    if (localStorage.getItem(("WATCHED"))) {
         WATCHED = JSON.parse(localStorage.getItem(("WATCHED")))
     }
-
+    else {
+        WATCHED = [];
+    }
+    findFavorites();
 }
 
 
 function removeWatched(id) {
-    // WATCHED.splice(id, 1)
-    // save();
+    WATCHED.splice(id, 1);
+    WATCHED.forEach(function (e, i) {
+        e.id = i;
+    });
+    findFavorites();
+    save();
+    console.log(FAVORITES)
+    renderHomeScreen();
 }
 
 /* COMPONENT RENDER FUNCTIONS */
 function renderFavorites() {
     let lis = ``;
     for (let i = 0; i < 5; i++) {
-        if(FAVORITES) {
+        if (FAVORITES) {
             if (!(FAVORITES[i]))
                 lis += `<li class="placeholder"></li>`
             else
-                lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite">X</span></li>`
-            }
+                lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite hidden">X</span></li>`
+        }
     }
     let favorites = `<section id="favorites" class="dropzone"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);
@@ -291,6 +299,13 @@ function renderHomeScreen() {
     read();
     renderFavorites();
     renderRecent(1);
+    onEditButtonClick();
+    onDeleteButtonClick();
+    $('#recent_watched div').hover(function (e) {
+        $(this).find('.unwatched').toggleClass('hidden')
+    });
+
+
     onNavClick();
     $('#recent_watched').on('click', '.movie_poster', function (e) {
         renderMovieDetail(e.currentTarget.dataset.movieId);
@@ -324,6 +339,7 @@ function overlayListener() {
         if ((e.target.id) == 'overlay') {
             $('#overlay').toggleClass('hidden');
             $("#overlay").off()
+            onNavClick();
         }
         else {
         }
@@ -340,6 +356,7 @@ function renderSearchOverlay() {
 
     $('#overlay').toggleClass('hidden');
     $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
+    $('#name').focus();
 
 
     $('#name').on('input', function () {
@@ -356,39 +373,72 @@ function renderSearchOverlay() {
 
 };
 
-function renderWatchDetail(obj, img) {
+function renderWatchDetail(obj) {
+    let img = arguments[1] || "not found";
     let dir = arguments[2] || "not found";
     const currentTime = new Date();
-    console.log(obj, img)
+    console.log(obj.id, img)
     //if existing watch
-    $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="off" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
-    onStarClick();
+    if ('id' in obj) {
+        console.log("ALREADY AN OBJECT")
+        $('#overlay').toggleClass('hidden');
+        overlayListener();
+        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${obj.movie.movie_poster}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movie.movie_title} (${obj.movie.movie_year})</span><span>${obj.movie.movie_dir}</span></div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(obj.date_watched)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;">${obj.review_content}</textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite" ${(obj.favorite) ? 'checked' : ""}></div></div><input class="" style="margin-top: 10px" type="button" value="Update" /></div>`)
+        onStarClick();
+        starFill(5 - obj.star_count);
 
-    $('#ui').on('click', 'input[type=button]', function (e) {
-        WATCHED.push({
-            date_watched: currentTime,
-            favorite: ($('#favorite').is(':checked')),
-            star_count: 5 - starNum,
-            review_content: $('#reviewContent').val(),
-            movie: {
-                movie_id: obj.movieId,
-                movie_title: obj.movieTitle,
-                movie_poster: img,
-                movie_dir: dir,
-                movie_year: obj.movieRelease
-            }
+        $('#ui').on('click', 'input[type=button]', function (e) {
+            WATCHED[obj.id].favorite = ($('#favorite').is(':checked'));
+            WATCHED[obj.id].star_count = (5 - starNum);
+            WATCHED[obj.id].review_content = $('#reviewContent').val();
+                // date_watched: currentTime,
+            findFavorites();
+            $('#ui').off();
+            $('#overlay').toggleClass('hidden');
+            save();
+            renderHomeScreen();
+            $('#ui').html('');
+            overlayListener();
+            onNavClick();
+
+        });
+    }
+    else {
+
+        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
+        onStarClick();
+        starFill(5 - 1);
+
+        $('#ui').on('click', 'input[type=button]', function (e) {
+            WATCHED.push({
+                id: WATCHED.length,
+                date_watched: currentTime,
+                favorite: ($('#favorite').is(':checked')),
+                star_count: 5 - starNum,
+                review_content: $('#reviewContent').val(),
+                movie: {
+                    movie_id: obj.movieId,
+                    movie_title: obj.movieTitle,
+                    movie_poster: img,
+                    movie_dir: dir,
+                    movie_year: obj.movieRelease
+                }
+
+            });
+
+            findFavorites();
+            $('#ui').off();
+            $('#overlay').toggleClass('hidden');
+            save();
+            renderHomeScreen();
+            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
+            overlayListener();
+            onNavClick();
+            
 
         });
 
-        $('#ui').off();
-        $('#overlay').toggleClass('hidden');
-        save();
-        renderHomeScreen();
-        $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
-        overlayListener();
-        onNavClick();
-
-    });
+    }
 
 }
 
