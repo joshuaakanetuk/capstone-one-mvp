@@ -1,7 +1,7 @@
 'use strict';
 
 const basepath = 'https://api.themoviedb.org/3';
-const imagebase = 'https://image.tmdb.org/t/p/original'
+const imagebase = 'https://image.tmdb.org/t/p/w500'
 const imagebase92 = 'https://image.tmdb.org/t/p/w154'
 const searchEndpoint = 'search/movie'
 const movieEndpoint = 'movie'
@@ -74,14 +74,15 @@ function castToList(arr) {
 
 function findInArray(arr) {
     let found = arr.filter(word => word.job === "Director");
-    console.log(found);
-    return found;
+    if(found.length > 0)
+        return found;
+    else
+        return "(no director)"
 }
 
 function convertMovieOBJ(obj) {
-    console.log(obj)
-    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
-    <section class="content" style="margin-top: -80px;"><div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div><div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div style="color: lightgreen;margin-top: 10px;" class="tagline"><small>${obj[1].tagline}</small></div><div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
+    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="${(obj[1].backdrop_path) ? "" : "padding-top: 26.25%;"}; margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
+    <section class="content pad" style="margin-top: -200px;"><div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div><div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div style="color: lightgreen;margin-top: 10px;" class="tagline"><small>${obj[1].tagline}</small></div><div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
     <div class="movie_overview" style="margin-bottom: 40px;">${obj[1].overview}</div>
     <div class="movie_cast"> 
     <small>CAST</small> 
@@ -94,7 +95,7 @@ function watchedList() {
     var reverse = WATCHED;
     reverse = reverseArray(reverse);
     const renderWatchList = reverse.map(watch => watchToString(watch)).join('');
-    let watchedContain = `<section id="recent"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
+    let watchedContain = `<section id="recent" class="pad"> <span id="recent_header"> <small>RECENTLY WATCHED:</small> <small class="exportButton" style="right: 0; position: absolute; text-decoration: underline;">EXPORT</small> </span><section id="recent_watched"><ul>${renderWatchList}</ul></section></section>`;
     $('main').append(watchedContain);
 }
 
@@ -117,32 +118,30 @@ function checkLocalStorage() {
 
 function onClickHandler() {
     $('#favorite__drawer').on('click', 'li', function (e) {
-        if (e.currentTarget.dataset.movieId)
+        if (e.currentTarget.dataset.movieId) {
+            window.scrollTo(0,0); 
             renderMovieDetail(e.currentTarget.dataset.movieId);
+        }
 
     });
 
 
-    $('#favorite__drawer').hover(function (e) {
-        console.log(e)
-        $('.unfavorite').toggleClass('hidden')
-
+    $('#favorite__drawer li').hover(function (e) {
+        $(this).find('.unfavorite').toggleClass('hidden');
     });
 
 }
 
 function starFill(int) {
-        
-        let arrofstars = document.querySelectorAll('.rating span')
-        starNum = int;
-        console.log(starNum)
-        for (var i = 4; i >= int; i--) {
-            $(arrofstars[i]).addClass('rating--selected');
+    let arrofstars = document.querySelectorAll('.rating span')
+    starNum = int;
+    for (var i = 4; i >= int; i--) {
+        $(arrofstars[i]).addClass('rating--selected');
 
-        }
-        for (var i = 0; i < int; i++) {
-            $(arrofstars[i]).removeClass('rating--selected');
-        }
+    }
+    for (var i = 0; i < int; i++) {
+        $(arrofstars[i]).removeClass('rating--selected');
+    }
 
 }
 
@@ -162,15 +161,20 @@ function onNavClick() {
         e.stopPropagation();
         renderSearchOverlay();
         overlayListener();
+        
     });
 }
 
 function onEditButtonClick() {
     $('.edit--button').on('click', function (e) {
         e.stopPropagation();
-        console.log(WATCHED[(this).closest('li').dataset.id]);
         renderWatchDetail(WATCHED[(this).closest('li').dataset.id]);
-        // removeWatched($(this).closest('li').get()[0].dataset.id);
+    });
+}
+
+function onExportButtonClick() {
+    $('.exportButton').on('click', function (e) {
+        downloadObjectAsJson();
     });
 }
 
@@ -178,9 +182,17 @@ function onEditButtonClick() {
 function onDeleteButtonClick() {
     $('.unwatched').on('click', function (e) {
         e.stopPropagation();
-        // console.log(e, $(this).closest('li').get());
         removeWatched($(this).closest('li').get()[0].dataset.id);
     });
+
+    $('.unfavorite').on('click', function (e) {
+        e.stopPropagation();
+        WATCHED[$(this).closest('li').get()[0].dataset.id].favorite = false;
+        findFavorites();
+        save();
+        renderHomeScreen();
+    });
+
 }
 
 function goHome() {
@@ -192,13 +204,13 @@ function goHome() {
 
 function onClickSearchOverlay() {
     $('#results').on('click', 'li', function (e) {
-        // e.stopPropagation();
-
-        console.log()
-
         fetchHelp(movieEndpoint, e.currentTarget.dataset.movieId + "/credits", '')
             .then(data => {
-                renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name)
+                if(data.crew[0])
+                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name)
+                else
+                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, "(no director)")
+
             })
             .catch(err => console.log(err))
 
@@ -216,16 +228,25 @@ function movieFetch(id) {
 
 
 function save() {
-
     let watch_string = JSON.stringify(WATCHED);
     localStorage.setItem("WATCHED", watch_string);
-
 }
+
+function downloadObjectAsJson(){
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(WATCHED));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "watched.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
 
 
 function findFavorites() {
     FAVORITES = [];
     let newfav = "";
+    let isFavorite = false;
     WATCHED.forEach(function (element, ind) {
         if (element.favorite == true) {
             if (FAVORITES.length == 0) {
@@ -234,17 +255,17 @@ function findFavorites() {
                 FAVORITES.push(element.movie);
             }
             else {
-                FAVORITES.forEach(function (favorite, index) {
-                    if (element.movie.movie_id != favorite.movie_id && FAVORITES.length < 6) {
-                        newfav = element.movie;
-                        newfav.id = FAVORITES.length;
-                        FAVORITES.push(newfav);
+                FAVORITES.forEach(favorite => {
+                    if (element.movie.movie_id == favorite.movie_id && FAVORITES.length < 5) {
+                        isFavorite = true;
                     }
-                    // else {
-                    //     console.log(favorite)
-                    //     favorite.id = index;
-                    // }
                 });
+                if(!isFavorite) {
+                    newfav = element.movie;
+                        newfav.id = element.id;
+                        FAVORITES.push(newfav);
+                    
+                }
             }
 
         }
@@ -269,7 +290,6 @@ function removeWatched(id) {
     });
     findFavorites();
     save();
-    console.log(FAVORITES)
     renderHomeScreen();
 }
 
@@ -281,10 +301,10 @@ function renderFavorites() {
             if (!(FAVORITES[i]))
                 lis += `<li class="placeholder"></li>`
             else
-                lis += `<li data-movie-id=${FAVORITES[i].movie_id}><img src="${FAVORITES[i].movie_poster}"/><span class="unfavorite hidden">X</span></li>`
+                lis += `<li data-id=${FAVORITES[i].id} data-movie-id=${FAVORITES[i].movie_id}><span class="unfavorite hidden">X</span><img src="${FAVORITES[i].movie_poster}"/></li>`
         }
     }
-    let favorites = `<section id="favorites" class="dropzone"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
+    let favorites = `<section id="favorites" class="pad"><small>FAVORITES:</small><ul id="favorite__drawer">${lis}</ul></section>`;
     $('main').html(favorites);
     onClickHandler();
 }
@@ -298,9 +318,10 @@ function renderHomeScreen() {
     $('#addbutton').off();
     read();
     renderFavorites();
-    renderRecent(1);
+    renderRecent();
     onEditButtonClick();
     onDeleteButtonClick();
+    onExportButtonClick();
     $('#recent_watched div').hover(function (e) {
         $(this).find('.unwatched').toggleClass('hidden')
     });
@@ -308,17 +329,14 @@ function renderHomeScreen() {
 
     onNavClick();
     $('#recent_watched').on('click', '.movie_poster', function (e) {
+        window.scrollTo(0,0); 
         renderMovieDetail(e.currentTarget.dataset.movieId);
-        // renderSearchOverlay();
-
     });
 
 }
 
-
-
-
 function renderMovieDetail(id) {
+    $('main').css('padding-top', '0');
     movieFetch(id)
         .then(data => convertMovieOBJ(data))
         .then(str => {
@@ -328,17 +346,13 @@ function renderMovieDetail(id) {
     goHome();
 }
 
-// function renderAllWatchedScreen() {
-
-// }
-
 function overlayListener() {
     $('#overlay').on('click', function (e) {
         e.stopPropagation();
-        console.log(e);
         if ((e.target.id) == 'overlay') {
             $('#overlay').toggleClass('hidden');
             $("#overlay").off()
+            $('#ui').off();
             onNavClick();
         }
         else {
@@ -348,14 +362,13 @@ function overlayListener() {
 
 function mapSearchList(arr) {
     arr = arr.slice(0, 3);
-    console.log(arr)
     return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}" data-movie-release="${watch.release_date.substring(0, 4)}"><div class="results--item"><div><img src="${(watch.poster_path) ? imagebase92 + watch.poster_path : "http://placehold.it/34x54?text=" + watch.title}" /></div><span>${watch.title} (${watch.release_date.substring(0, 4)})</span></div></li>`);
 }
 
 function renderSearchOverlay() {
 
     $('#overlay').toggleClass('hidden');
-    $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
+    $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input autofocus id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
     $('#name').focus();
 
 
@@ -377,35 +390,33 @@ function renderWatchDetail(obj) {
     let img = arguments[1] || "not found";
     let dir = arguments[2] || "not found";
     const currentTime = new Date();
-    console.log(obj.id, img)
-    //if existing watch
     if ('id' in obj) {
         console.log("ALREADY AN OBJECT")
         $('#overlay').toggleClass('hidden');
         overlayListener();
-        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${obj.movie.movie_poster}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movie.movie_title} (${obj.movie.movie_year})</span><span>${obj.movie.movie_dir}</span></div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(obj.date_watched)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;">${obj.review_content}</textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite" ${(obj.favorite) ? 'checked' : ""}></div></div><input class="" style="margin-top: 10px" type="button" value="Update" /></div>`)
+        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${obj.movie.movie_poster}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movie.movie_title} (${obj.movie.movie_year})</span><span>${obj.movie.movie_dir}</span></div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(obj.date_watched)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;">${obj.review_content}</textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite" ${(obj.favorite) ? 'checked' : ""}></div></div><input class="" style="margin-top: 10px" type="button" value="Update" /></div>`)
         onStarClick();
         starFill(5 - obj.star_count);
 
         $('#ui').on('click', 'input[type=button]', function (e) {
             WATCHED[obj.id].favorite = ($('#favorite').is(':checked'));
             WATCHED[obj.id].star_count = (5 - starNum);
-            WATCHED[obj.id].review_content = $('#reviewContent').val();
-                // date_watched: currentTime,
+            WATCHED[obj.id].review_content = ($('#reviewContent').val() === undefined ? " " : $('#reviewContent').val());
+            console.log($('#reviewContent').val() )
             findFavorites();
             $('#ui').off();
             $('#overlay').toggleClass('hidden');
             save();
             renderHomeScreen();
-            $('#ui').html('');
+            
             overlayListener();
             onNavClick();
-
+            $('#ui').html('');
         });
     }
     else {
 
-        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite?</label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
+        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea wrap="hard" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
         onStarClick();
         starFill(5 - 1);
 
@@ -415,7 +426,7 @@ function renderWatchDetail(obj) {
                 date_watched: currentTime,
                 favorite: ($('#favorite').is(':checked')),
                 star_count: 5 - starNum,
-                review_content: $('#reviewContent').val(),
+                review_content: ($('#reviewContent').val() === undefined ? "" : $('#reviewContent').val()),
                 movie: {
                     movie_id: obj.movieId,
                     movie_title: obj.movieTitle,
@@ -431,10 +442,10 @@ function renderWatchDetail(obj) {
             $('#overlay').toggleClass('hidden');
             save();
             renderHomeScreen();
-            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
+            
             overlayListener();
             onNavClick();
-            
+            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
 
         });
 
