@@ -1,7 +1,6 @@
 'use strict';
-
 const basepath = 'https://api.themoviedb.org/3';
-const imagebase = 'https://image.tmdb.org/t/p/w500'
+const imagebase = 'https://image.tmdb.org/t/p/original'
 const imagebase92 = 'https://image.tmdb.org/t/p/w154'
 const searchEndpoint = 'search/movie'
 const movieEndpoint = 'movie'
@@ -81,7 +80,8 @@ function findInArray(arr) {
 }
 
 function convertMovieOBJ(obj) {
-    return `<section id="movie_detail"> <section id="movie-backdrop-container" style="${(obj[1].backdrop_path) ? "" : "padding-top: 26.25%;"}; margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
+    //${(obj[1].backdrop_path) ? "" : "padding-top: 26.25%;"}
+    return `<section id="movie_detail"> <section id="movie-backdrop-container" style=" margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
     <section class="content pad" style="margin-top: -200px;"><div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div><div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div style="color: lightgreen;margin-top: 10px;" class="tagline"><small>${obj[1].tagline}</small></div><div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
     <div class="movie_overview" style="margin-bottom: 40px;">${obj[1].overview}</div>
     <div class="movie_cast"> 
@@ -315,6 +315,13 @@ function renderRecent(num) {
 
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
+    $('#ui').html('Click the + to add a movie!');
+    $('#overlay').toggleClass('hidden');
+    overlayListener();
+
+
+    
+    $('main').css('padding-top', '85px');
     $('#addbutton').off();
     read();
     renderFavorites();
@@ -439,13 +446,14 @@ function renderWatchDetail(obj) {
 
             findFavorites();
             $('#ui').off();
+            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
             $('#overlay').toggleClass('hidden');
             save();
             renderHomeScreen();
             
             overlayListener();
             onNavClick();
-            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
+            
 
         });
 
@@ -454,21 +462,10 @@ function renderWatchDetail(obj) {
 }
 
 
-
-
-
 function init() {
     checkLocalStorage();
     renderHomeScreen();
 }
-
-
-// Need listeners on each view switch
-
-//$('textarea').autoResize();
-// window.onload = (e) => {
-//     init();
-// }
 
 $(init);
 

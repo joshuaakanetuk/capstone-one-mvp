@@ -76,6 +76,8 @@ svg {
     background-color: #202020;
     padding: 1px;
     fill: #222222;
+    width: 28px;
+    height: 28px;
 }
 
 section {
@@ -160,6 +162,7 @@ object-fit: fill;
 
 #recent_header {
   display: flex;
+  position: relative;
 }
 
 #recent_watched h1,
@@ -300,14 +303,6 @@ object-fit: fill;
   cursor: no-drop;
   border: 1px dashed white !important;
 }
-
-/* .overlay-search::before {
-    content: "SEARCH";
-    top: -31px;
-    font-size: 14px;
-    position: relative;
-    color: white;
-} */
 
 .overlay-search {
   width: 329px;
