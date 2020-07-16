@@ -103,14 +103,16 @@ header {
 }
 
 .hidden {
-    visibility: hidden !important;
     opacity: 0 !important;
+    visibility: hidden !important;
     transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
   }
 
 /* IDS */
 #overlay {
   position: fixed;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
   background-color: #000000b8;
@@ -118,20 +120,19 @@ header {
   justify-content: center;
   z-index: 1000;
   align-items: center;
-  visibility: visible;
   opacity: 1;
-  transition: opacity .5s cubic-bezier(0.075, 0.82, 0.165, 1);
+  visibility: visible;
+  transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .pad {
-    padding: 15px;
+    padding: 20px;
 }
 
 #ui {
 }
 
 #recent {
-  margin-top: 20px;
 }
 
 #favorites {
@@ -232,8 +233,10 @@ object-fit: fill;
 /*  CLASSES */
 .movie_poster {
   width: 92px;
+  outline: 0px solid #00e054 !important;
+
   transition: outline 0.1s ease;
-  outline: none;
+  
   display: flex;
 }
 
@@ -425,6 +428,9 @@ footer a {
     width: 154px;
   }
 
+  #recent {
+    margin-top: 20px;
+  }
   
 
   #recent_watched ul{
