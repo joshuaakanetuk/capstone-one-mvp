@@ -331,7 +331,6 @@ function renderFavorites() {
 }
 
 function returnMovieDetail(obj) {
-    //${(obj[1].backdrop_path) ? "" : "padding-top: 26.25%;"}
     return `<section id="movie_detail"> <section id="movie-backdrop-container" style=" margin-bottom: 10px;background-image: url('${imagebase + obj[1].backdrop_path}')"> <div id="movie_backdrop"></div> </section> 
     <section class="content pad" style="margin-top: -200px;"><div class="movie_poster" style="margin-bottom: 20px;"> <img src="${imagebase92 + obj[1].poster_path}" /> </div><div class="movie_info"> <h2>${obj[1].title + " (" + obj[1].release_date.substring(0, 4) + ")"}</h2><small style="margin-bottom: 10px;">dir. ${findInArray(obj[0].crew)[0].name} — ${obj[1].runtime} mins</small> <div style="color: lightgreen;margin-top: 10px;" class="tagline"><small>${obj[1].tagline}</small></div><div class="times_watched" style="margin-bottom: 10px;    margin-top: 10px;">Watched <b>${beenWatchedNumbner(obj[0].id)}</b> time(s)</div> </div>
     <div class="movie_overview" style="margin-bottom: 40px;">${obj[1].overview}</div>
