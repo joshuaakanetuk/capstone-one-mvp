@@ -41,7 +41,7 @@ function doubleDigits(int) {
 
 function dateForInput(str) {
     let newDate = new Date(str);
-    return `${newDate.getFullYear()}-${doubleDigits(newDate.getMonth()+1)}-${doubleDigits(newDate.getDate())}`
+    return `${newDate.getFullYear()}-${doubleDigits(newDate.getMonth() + 1)}-${doubleDigits(newDate.getDate())}`
 }
 
 function reverseArray(arr) {
@@ -55,7 +55,7 @@ function reverseArray(arr) {
 function requestAPIHandler(endpoint, path, q) {
     return fetch(`https://api.themoviedb.org/3/${endpoint}${(path) ? '/' + path : ''}?api_key=${api}&query=${q}`, { mode: 'cors' })
         .then(response => response.json())
-        .catch(err => console.log(err))
+        .catch(err => err)
 }
 
 function castToString(obj) {
@@ -68,7 +68,7 @@ function castToList(arr) {
     return castList;
 }
 
-
+// Looking for Director in crew array
 function findInArray(arr) {
     let found = arr.filter(word => word.job === "Director");
     if (found.length > 0)
@@ -92,6 +92,7 @@ function checkLocalStorage() {
     // Most modern browsers support
     if (typeof (Storage) !== "undefined") {
         // Store
+
     } else {
         alert('Watched has an autosave feature for devices, but since your browser doesn\'t support it you won\'t be able to save your watched history without exporting manually.');
     }
@@ -140,116 +141,6 @@ function returnSearchResults(arr) {
     return arr.map(watch => `<li data-movie-id="${watch.id}" data-movie-title="${watch.title}" data-movie-release="${watch.release_date.substring(0, 4)}"><div class="results--item"><div><img src="${(watch.poster_path) ? imagebase92 + watch.poster_path : "http://placehold.it/34x54?text=" + watch.title}" /></div><span>${watch.title} (${watch.release_date.substring(0, 4)})</span></div></li>`);
 }
 
-/* EVENT LISTENERS */
-function onHomeButtonClick() {
-    $('#gobackbutton').on('click', function (e) {
-        e.stopPropagation();
-        renderHomeScreen();
-    });
-}
-
-function onClickOutOfOverlay() {
-    $('#overlay').on('click', function (e) {
-        e.stopPropagation();
-        if ((e.target.id) == 'overlay') {
-            $('#overlay').addClass('hidden');
-            $("#overlay").off()
-            $('#ui').off();
-            onNavClick();
-        }
-        else {
-        }
-    });
-}
-
-function favoriteEventListeners() {
-    $('#favorite__drawer').on('click', 'li', function (e) {
-        if (e.currentTarget.dataset.movieId) {
-            window.scrollTo(0, 0);
-            renderMovieDetail(e.currentTarget.dataset.movieId);
-        }
-
-    });
-
-
-    $('#favorite__drawer li').hover(function (e) {
-        $(this).find('.unfavorite').toggleClass('hidden');
-    });
-
-}
-
-function onClickGuide() {
-    $('.guide').on('click', function() {
-        $('#ui').html('Click the + to add a movie!<br>Hover over (on double tap on mobile) to delete a movie from watch history or unfavorite.');
-        $('#overlay').removeClass('hidden');
-        onClickOutOfOverlay();
-    })
-}
-
-function deleteButtonListeners() {
-    $('.unwatched').on('click', function (e) {
-        e.stopPropagation();
-        removeWatched($(this).closest('li').get()[0].dataset.id);
-    });
-
-    $('.unfavorite').on('click', function (e) {
-        e.stopPropagation();
-        WATCHED[$(this).closest('li').get()[0].dataset.id].favorite = false;
-        findFavorites();
-        save();
-        renderHomeScreen();
-    });
-
-}
-
-function onSearchOverlaySelectionClick() {
-    $('#results').on('click', 'li', function (e) {
-        requestAPIHandler(movieEndpoint, e.currentTarget.dataset.movieId + "/credits", '')
-            .then(data => {
-                if (data.crew[0])
-                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name)
-                else
-                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, "(no director)")
-            })
-            .catch(err => console.log(err))
-    });
-}
-
-function onStarClick() {
-    $('.rating span').on('click', function (e) {
-        starNum = 1;
-        let ind = $('.rating span').index(this);
-        starFill(ind);
-
-    });
-}
-
-function onNavClick() {
-    $('#addbutton').off();
-    $('#addbutton').on('click', function (e) {
-        e.stopPropagation();
-        renderSearchOverlay();
-        onClickOutOfOverlay();
-
-    });
-}
-
-function onWatchEditButtonClick() {
-    $('.edit--button').on('click', function (e) {
-        e.stopPropagation();
-        renderWatchDetail(WATCHED[(this).closest('li').dataset.id]);
-    });
-}
-
-function onExportButtonClick() {
-    $('.exportButton').on('click', function (e) {
-        downloadObjectAsJson();
-    });
-}
-
-
-
-
 function downloadObjectAsJson() {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(WATCHED));
     var downloadAnchorNode = document.createElement('a');
@@ -260,7 +151,7 @@ function downloadObjectAsJson() {
     downloadAnchorNode.remove();
 }
 
-
+// rename to gather favorites
 function findFavorites() {
     FAVORITES = [];
     let newfav = "";
@@ -290,14 +181,152 @@ function findFavorites() {
     });
 }
 
+function closeOverlay() {
+    $('#ui').off();
+    findFavorites();
+    $('#overlay').addClass('hidden');
+    save();
+    renderHomeScreen();
+    onClickOutOfOverlay();
+    onNavClick();
+}
+
+/* EVENT LISTENERS */
+function onHomeButtonClick() {
+    $('#gobackbutton').on('click', function (e) {
+        e.stopPropagation();
+        renderHomeScreen();
+    });
+}
+
+function onClickOutOfOverlay() {
+    $('#overlay').on('click', function (e) {
+        e.stopPropagation();
+        if ((e.target.id) == 'overlay') {
+            $('#overlay').addClass('hidden');
+            $("#overlay").off()
+            $('#ui').off();
+            onNavClick();
+        }
+        else {
+        }
+    });
+}
+
+function favoriteEventListeners() {
+    $('#favorite__drawer').on('dblclick', 'li', function (e) {
+        if (e.currentTarget.dataset.movieId) {
+            window.scrollTo(0, 0);
+            renderMovieDetail(e.currentTarget.dataset.movieId);
+        }
+
+    });
+
+
+    $('#favorite__drawer li').hover(function (e) {
+        $(this).find('.unfavorite').toggleClass('hidden');
+    });
+
+}
+
+
+
+function onClickGuide() {
+    $('.guide').on('click', function () {
+        renderGuide()
+    })
+}
+
+function deleteButtonListeners() {
+    $('.unwatched').on('click', function (e) {
+        e.stopPropagation();
+        removeWatched($(this).closest('li').get()[0].dataset.id);
+    });
+
+    $('.unfavorite').on('click', function (e) {
+        e.stopPropagation();
+        WATCHED[$(this).closest('li').get()[0].dataset.id].favorite = false;
+        findFavorites();
+        save();
+        renderHomeScreen();
+    });
+
+}
+
+function onSearchOverlaySelectionClick() {
+    $('#results').on('click', 'li', function (e) {
+        requestAPIHandler(movieEndpoint, e.currentTarget.dataset.movieId + "/credits", '')
+            .then(data => {
+                if (data.crew[0])
+                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, findInArray(data.crew)[0].name)
+                else
+                    renderWatchDetail(e.currentTarget.dataset, $(this).find('img').get()[0].src, "(no director)")
+            })
+            .catch(err => (err))
+    });
+}
+
+function onStarClick() {
+    $('.rating span').on('click', function (e) {
+        starNum = 1;
+        let ind = $('.rating span').index(this);
+        starFill(ind);
+
+    });
+}
+
+function onNavClick() {
+    $('#addbutton').off();
+    $('#addbutton').on('click', function (e) {
+        e.stopPropagation();
+        renderSearchOverlay();
+        onClickOutOfOverlay();
+
+    });
+}
+
+function onRecentlyWatchedClick() {
+    $('#recent_watched div').click(function (e) {
+        $(this).find('.unwatched').toggleClass('hidden')
+    });
+
+
+    onNavClick();
+    $('#recent_watched').on('dblclick', '.movie_poster', function (e) {
+        window.scrollTo(0, 0);
+        renderMovieDetail(e.currentTarget.dataset.movieId);
+    });
+
+}
+
+function onWatchEditButtonClick() {
+    $('.edit--button').on('click', function (e) {
+        e.stopPropagation();
+        renderWatchDetail(WATCHED[(this).closest('li').dataset.id]);
+    });
+}
+
+function onExportButtonClick() {
+    $('.exportButton').on('click', function (e) {
+        downloadObjectAsJson();
+    });
+}
+
+
 /* COMPONENT RENDER FUNCTIONS */
+function renderGuide() {
+    $('#ui').html('<div class="over">Click the + to search and add a movie!<br><br>Click on a movie under the recently watched to delete a movie from watch history.<br><br>Double click on a movie on the home page to see details about the movie.<br><br>Click Usage Guide at the bottom of the page to revisit this guide.</div>');
+        $('#overlay').removeClass('hidden');
+        onClickOutOfOverlay();
+}
+
 function renderSearchOverlay() {
     $('#overlay').toggleClass('hidden');
     $('#ui').html('<div class="overlay-search"> <div class="search--group"> <input autofocus id="name" name="search" placeholder="Search!" > <i class="fa fa-search fa"></i></div><ul id="results"> </ul> </div>');
     $('#overlay').on('transitionend',
         function (e) {
 
-            $('#name').focus()
+            $('#name').focus();
 
         });
 
@@ -308,7 +337,7 @@ function renderSearchOverlay() {
                 $('#results').html(data)
 
             })
-            .catch(err => console.log(err))
+            .catch(err => err)
     });
 
     onSearchOverlaySelectionClick();
@@ -363,17 +392,7 @@ function renderHomeScreen() {
     onWatchEditButtonClick();
     deleteButtonListeners();
     onExportButtonClick();
-    $('#recent_watched div').hover(function (e) {
-        $(this).find('.unwatched').toggleClass('hidden')
-    });
-
-
-    onNavClick();
-    $('#recent_watched').on('click', '.movie_poster', function (e) {
-        window.scrollTo(0, 0);
-        renderMovieDetail(e.currentTarget.dataset.movieId);
-    });
-
+    onRecentlyWatchedClick();
 }
 
 function renderMovieDetail(id) {
@@ -383,7 +402,7 @@ function renderMovieDetail(id) {
         .then(str => {
             $('main').html(str);
         })
-        .catch(err => console.log(err));
+        .catch(err => err);
     onHomeButtonClick();
 }
 
@@ -393,38 +412,39 @@ function renderWatchDetail(obj) {
     let img = arguments[1] || "not found";
     let dir = arguments[2] || "not found";
     const currentTime = new Date();
-    // console.log(currentTime)
-    if ('id' in obj) {
+    if ('id' in obj) { 
         $('#overlay').removeClass('hidden');
         onClickOutOfOverlay();
-        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${obj.movie.movie_poster}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movie.movie_title} (${obj.movie.movie_year})</span><span>${obj.movie.movie_dir}</span></div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(obj.date_watched)}"/> </div><textarea wrap="hard" placeholder="Add your thoughts about the movie!" id="reviewContent" style="margin-top: 10px;">${obj.review_content}</textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite" ${(obj.favorite) ? 'checked' : ""}></div></div><input class="" style="margin-top: 10px" type="button" value="Update" /></div>`)
+        $('#ui').html(`<div class="over"><div class="js-watch-diary"><img style="width: 32px;" src="${obj.movie.movie_poster}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movie.movie_title} (${obj.movie.movie_year})</span><span>${obj.movie.movie_dir}</span></div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(obj.date_watched)}"/> </div><textarea wrap="hard" placeholder="Add your thoughts about the movie!" id="reviewContent" style="margin-top: 10px;">${obj.review_content}</textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite" ${(obj.favorite) ? 'checked' : ""}></div></div><input class="" style="margin-top: 10px" type="button" value="Update" /></div>`)
         onStarClick();
         starFill(5 - obj.star_count);
 
+
         $('#ui').on('click', 'input[type=button]', function (e) {
-            $('#ui').off();
+            var overlayDate = (new Date(document.getElementById("date-watched").value))
+            overlayDate.setDate(overlayDate.getDate() +  1);
+            
             WATCHED[obj.id].favorite = ($('#favorite').is(':checked'));
             WATCHED[obj.id].star_count = (5 - starNum);
-            WATCHED[obj.id].date_watched = (new Date(document.getElementById("date-watched").valueAsDate.getTime() + day))
+            WATCHED[obj.id].date_watched = overlayDate;
             WATCHED[obj.id].review_content = ($('#reviewContent').val() === 'undefined' ? " " : $('#reviewContent').val());
-            $("#overlay").toggleClass('hidden');
-            findFavorites();
-            save();
-            renderHomeScreen();
-            onClickOutOfOverlay();
-            onNavClick();
+
+            closeOverlay();
+
         });
     }
     else {
-
-        $('#ui').html(`<div class="over " style="width: 329px;background-color: white; padding: 16px; color: black;"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea placeholder="Add your thoughts about the movie!" wrap="hard" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
+        $('#ui').html(`<div class="over"><div class="js-watch-diary"><img style="width: 32px;" src="${img}"/><div style="display: flex; flex-direction: column" class=""><span>${obj.movieTitle} (${obj.movieRelease})</span>${(arguments[2]) ? "<span>" + arguments[2] + "</span>" : ""}</div></div><br><div style="justify-content: center; font-size: 15px;">Date Watched: <input type="date" id="date-watched" name="date-watched" value="${dateForInput(currentTime)}"/> </div><textarea placeholder="Add your thoughts about the movie!" wrap="hard" id="reviewContent" style="margin-top: 10px;"></textarea><div style="display: flex; justify-content: space-between; margin-top: 10px;"><div class="rating"><span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span></div><div><label for="favorite">Favorite? </label><input type="checkbox" id="favorite" name="favorite"></div></div><input class="" style="margin-top: 10px" type="button" value="Add" /></div>`)
+        
         onStarClick();
         starFill(5 - 1);
 
         $('#ui').on('click', 'input[type=button]', function (e) {
+            var overlayDate = (new Date(document.getElementById("date-watched").value))
+            overlayDate.setDate(overlayDate.getDate() +  1);
             WATCHED.push({
                 id: WATCHED.length,
-                date_watched: currentTime.toLocaleDateString(),
+                date_watched: overlayDate,
                 favorite: ($('#favorite').is(':checked')),
                 star_count: 5 - starNum,
                 review_content: ($('#reviewContent').val() === undefined ? " " : $('#reviewContent').val()),
@@ -438,28 +458,29 @@ function renderWatchDetail(obj) {
 
             });
 
-            findFavorites();
-            $('#ui').off();
-            $('#ui').html('<label for="name">Name: </label> <input id="name"> <ul id="results"> </ul>');
-            $('#overlay').addClass('hidden');
-            save();
-            renderHomeScreen();
-
-            onClickOutOfOverlay();
-            onNavClick();
+            closeOverlay();
 
 
         });
 
     }
 
+
+
+
 }
 
 
 function init() {
+        
     checkLocalStorage();
     renderHomeScreen();
+
+    if((localStorage.getItem("onboarded")) === null) {
+        renderGuide();
+        localStorage.setItem("onboarded", "true");
+    }
+    
 }
 
 $(init);
-

@@ -73,11 +73,11 @@ main {
 }
 
 svg {
-    background-color: #202020;
-    padding: 1px;
-    fill: #222222;
-    width: 28px;
-    height: 28px;
+  background-color: #202020;
+  padding: 1px;
+  fill: #222222;
+  width: 28px;
+  height: 28px;
 }
 
 section {
@@ -97,16 +97,16 @@ textarea {
 }
 
 header {
-    position: fixed;
-    width: 100%;
-    z-index: 10;
+  position: fixed;
+  width: 100%;
+  z-index: 10;
 }
 
 .hidden {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
-  }
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
 
 /* IDS */
 #overlay {
@@ -122,11 +122,11 @@ header {
   align-items: center;
   opacity: 1;
   visibility: visible;
-  transition: all .5s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: all 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 .pad {
-    padding: 20px;
+  padding: 20px;
 }
 
 #ui {
@@ -158,7 +158,7 @@ header {
 #favorite__drawer li img {
   width: 100%;
   height: 100%;
-object-fit: fill;
+  object-fit: fill;
 }
 
 #recent_header {
@@ -231,12 +231,19 @@ object-fit: fill;
 }
 
 /*  CLASSES */
+.over {
+  width: 329px;
+  background-color: white;
+  padding: 16px;
+  color: black;
+}
+
 .movie_poster {
   width: 92px;
   outline: 0px solid #00e054 !important;
 
   transition: outline 0.1s ease;
-  
+
   display: flex;
 }
 
@@ -244,7 +251,6 @@ object-fit: fill;
   outline: 3px solid #00e054 !important;
   transition: outline 0.1s ease;
 }
-
 
 .overlay-search ul {
   margin: 0;
@@ -372,7 +378,8 @@ object-fit: fill;
   font-weight: bolder;
 }
 
-.unfavorite, .unwatched  {
+.unfavorite,
+.unwatched {
   position: absolute;
   top: -10px;
   left: -10px;
@@ -386,6 +393,9 @@ object-fit: fill;
   font-weight: 600;
 }
 
+.guide {
+  text-decoration: underline;
+}
 
 b {
   color: lightgreen;
@@ -405,24 +415,26 @@ footer {
   text-align: center;
   margin-top: 20px;
   margin-bottom: 20px;
+  max-width: 100%;
+  padding: 10px 10px;
+  text-align: center;
 }
 
 footer a {
-    color: white;
-  }
+  color: white;
+}
 
 @media all and (min-width: 600px) {
-    svg {
-        background-color:none;
-        padding: none;
-        border: none;
-        fill:none;
-    }
+  svg {
+    background-color: none;
+    padding: none;
+    border: none;
+    fill: none;
+  }
 
-    main {
-        padding-top: 85px;
-      
-      }
+  main {
+    padding-top: 85px;
+  }
 
   .movie_poster {
     width: 154px;
@@ -431,17 +443,15 @@ footer a {
   #recent {
     margin-top: 20px;
   }
-  
 
-  #recent_watched ul{
+  #recent_watched ul {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
   }
 
-  #recent_watched li{
+  #recent_watched li {
     flex: 1 1 50%;
     margin-bottom: 60px;
   }
-
 }
