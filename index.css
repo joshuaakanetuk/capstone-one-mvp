@@ -191,19 +191,14 @@ header {
   background-image: url("https://a.ltrbxd.com/resized/film-poster/5/2/4/6/6/3/524663-the-half-of-it-0-150-0-225-crop.jpg?k=4023f45970");
 }
 
-/* #recent_watched .movie_poster:after {
-  content: "Edit";
-  display: block;
-  text-decoration: underline;
-  position: relative;
-  bottom: -110%;
-  text-align: center;
-} */
-
 #recent_watched .movie_info {
   margin-left: 20px;
   display: inline-block;
   flex: 1 1 50%;
+}
+
+#recent_watched .movie_title {
+  text-decoration: underline;
 }
 
 #movie-backdrop-container {

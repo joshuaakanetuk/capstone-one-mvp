@@ -78,7 +78,7 @@ function findInArray(arr) {
 }
 
 function returnWatchString(obj) {
-    return `<li data-id="${obj.id}"><div class="" style="position: relative; display: flex; flex-direction: column; text-align: center;"><span class="unwatched hidden">X</span><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div><span class="edit--button" style="text-decoration: underline; margin-top: 5px;">Edit</span> </div><div class="movie_info"> <h1>${obj.movie.movie_title + " (" + obj.movie.movie_year + ")"} </h1> <small>dir. ${obj.movie.movie_dir}</small><div style="margin-top: 10px; word-break: break-all;">${obj.review_content}</div><div style="margin-top: 10px; font-size: 14px;">Watched on <b>${dateToString(obj.date_watched)}</b></div> <div class="movie_stars" style="margin-top: 10px; font-size: 14px;">${obj.star_count} ★ </div></div> </li>`;
+    return `<li data-id="${obj.id}"><div class="" style="position: relative; display: flex; flex-direction: column; text-align: center;"><span class="unwatched hidden">X</span><div class="movie_poster" data-movie-id=${obj.movie.movie_id} style="background-image: url('${obj.movie.movie_poster}')"></div><span class="edit--button" style="text-decoration: underline; margin-top: 5px;">Edit</span> </div><div class="movie_info"> <h1 class="movie_title">${obj.movie.movie_title + " (" + obj.movie.movie_year + ")"} </h1> <small>dir. ${obj.movie.movie_dir}</small><div style="margin-top: 10px; word-break: break-all;">${obj.review_content}</div><div style="margin-top: 10px; font-size: 14px;">Watched on <b>${dateToString(obj.date_watched)}</b></div> <div class="movie_stars" style="margin-top: 10px; font-size: 14px;">${obj.star_count} ★ </div></div> </li>`;
 }
 
 function getMovieDetailsWithCredits(id) {
@@ -123,7 +123,6 @@ function read() {
     else {
         WATCHED = [];
     }
-    findFavorites();
 }
 
 function removeWatched(id) {
@@ -230,7 +229,6 @@ function favoriteEventListeners() {
 }
 
 
-
 function onClickGuide() {
     $('.guide').on('click', function () {
         renderGuide()
@@ -290,6 +288,10 @@ function onRecentlyWatchedClick() {
         $(this).find('.unwatched').toggleClass('hidden')
     });
 
+    $('#recent_watched .movie_title').click(function (e) {
+        renderMovieDetail(WATCHED[(this).closest('li').dataset.id].movie.movie_id);
+    });
+
 
     onNavClick();
     $('#recent_watched').on('dblclick', '.movie_poster', function (e) {
@@ -315,7 +317,7 @@ function onExportButtonClick() {
 
 /* COMPONENT RENDER FUNCTIONS */
 function renderGuide() {
-    $('#ui').html('<div class="over">Click the + to search and add a movie!<br><br>Click on a movie under the recently watched to delete a movie from watch history.<br><br>Double click on a movie on the home page to see details about the movie.<br><br>Click Usage Guide at the bottom of the page to revisit this guide.</div>');
+    $('#ui').html('<div class="over">Click the + to search and add a movie!<br><br>Click on a movie under the recently watched to delete a movie from watch history.<br><br>Double click on a movie poster or click on the movie title on the home page to see details about the movie.<br><br>Click Usage Guide at the bottom of the page to revisit this guide.</div>');
         $('#overlay').removeClass('hidden');
         onClickOutOfOverlay();
 }
@@ -381,12 +383,13 @@ function renderRecentWatched() {
 
 /* VIEW RENDER FUNCTIONS */
 function renderHomeScreen() {
-    onClickGuide();
     $('#overlay').addClass('hidden');
+    onClickGuide();
     onClickOutOfOverlay();
     $('main').css('padding-top', '85px');
     $('#addbutton').off();
     read();
+    findFavorites();
     renderFavorites();
     renderRecentWatched();
     onWatchEditButtonClick();
@@ -423,6 +426,11 @@ function renderWatchDetail(obj) {
         $('#ui').on('click', 'input[type=button]', function (e) {
             var overlayDate = (new Date(document.getElementById("date-watched").value))
             overlayDate.setDate(overlayDate.getDate() +  1);
+            console.log($('#date-watched').val())
+            if(overlayDate == null) {
+                alert("bork")
+                currentTime;
+            }
             
             WATCHED[obj.id].favorite = ($('#favorite').is(':checked'));
             WATCHED[obj.id].star_count = (5 - starNum);
@@ -442,6 +450,9 @@ function renderWatchDetail(obj) {
         $('#ui').on('click', 'input[type=button]', function (e) {
             var overlayDate = (new Date(document.getElementById("date-watched").value))
             overlayDate.setDate(overlayDate.getDate() +  1);
+
+
+            
             WATCHED.push({
                 id: WATCHED.length,
                 date_watched: overlayDate,
@@ -464,15 +475,10 @@ function renderWatchDetail(obj) {
         });
 
     }
-
-
-
-
 }
 
 
 function init() {
-        
     checkLocalStorage();
     renderHomeScreen();
 
